@@ -33,12 +33,14 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 int angle = 0;
 double input_tolerance = 2;
+boolean bloop = false;
 
-int servoAngle[4] = {30, 60, 120, 150};
-int servoDeltaI[4] = {15, 15, 15, 15};
-int servoDeltaO[4] = {30, 30, 30, 30};
-int servoMin[4] = {150, 150, 150, 150};
-int servoMax[4] = {600, 400, 400, 600};
+int servoAngle[4] = {20, 60, 120, 160};
+int servoDeltaI[4] = {0, 0, 0, 0};
+int servoDeltaO[4] = {30, 60, 60, 30};
+int servoMin[4] = {540, 510, 170, 150};
+int servoAttack[4] = {350, 415, 250, 290};
+int servoMax[4] = {220, 335, 360, 450};
 
 void setup() {
   Serial.begin(9600);
@@ -47,6 +49,13 @@ void setup() {
   pwm.begin();
   
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
+  
+  
+  for (int servonum = 0; servonum < 4; servonum++) {
+    // Drive each servo one at a time
+    pwm.setPWM(servonum, 0, servoMin[servonum]); 
+  }
+  
 }
 
 double getIntensity(uint8_t servonum, int angle) {
@@ -59,7 +68,7 @@ double getIntensity(uint8_t servonum, int angle) {
       intensity = servoMax[servonum];
     }
     else {
-      intensity = map(deviation, servoDeltaO[servonum], servoDeltaI[servonum], servoMin[servonum], servoMax[servonum]);
+      intensity = map(deviation, servoDeltaO[servonum], servoDeltaI[servonum], servoAttack[servonum], servoMax[servonum]);
     }
   }
   return intensity;
@@ -68,17 +77,29 @@ double getIntensity(uint8_t servonum, int angle) {
 
 void loop() {
   int tangle = angle;
+  //receive angle per serial
   if (Serial.available() > 0) {
+        bloop = false;
     // read the incoming int:
     tangle = Serial.parseInt();
+    if (tangle > 180 || tangle < 0) {
+      if (tangle == 666) {
+        bloop = true;
+      }
+      else {
+        tangle = angle;
+      }
+    }
   }
   
-// Loop Tester  
-//  tangle += 3;
-//  if(tangle > 180) {
-//    tangle = 0;
-//    angle = 0;
-//  }
+  // Loop Tester  
+  if (bloop) {
+    tangle -= 3;
+    if(tangle < 0) {
+      tangle = 180;
+      angle = 180;
+    }
+  }
   
   int deviation = angle-tangle;
   if (abs(deviation) > input_tolerance) {
@@ -87,11 +108,10 @@ void loop() {
     // our servo # counter
     for (int servonum = 0; servonum < 4; servonum++) {
       // Drive each servo one at a time
-      Serial.println(servonum);
       pwm.setPWM(servonum, 0, getIntensity(servonum, angle)); 
     }
   }
   
   //safety delay
-  delay(5);
+  delay(50);
 }
