@@ -34,28 +34,44 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 int angle = 0;
 double input_tolerance = 2;
 boolean bloop = false;
+int servosAttached = 8;
 
-int servoAngle[4] = {20, 60, 120, 160};
-int servoDeltaI[4] = {0, 0, 0, 0};
-int servoDeltaO[4] = {30, 60, 60, 30};
-int servoMin[4] = {540, 510, 170, 150};
-int servoAttack[4] = {350, 415, 250, 290};
-int servoMax[4] = {220, 335, 360, 450};
+int servoAngle[16] = 
+                      {20, 60, 120, 160, 
+                      35, 60, 120, 145, 
+                      20, 60, 120, 160, 
+                      20, 60, 120, 160};
+int servoActiveDist[16] = 
+                      {
+                       0,0,0,0,
+                       90,90,90,90,
+                       180,180,180,180,
+                       270,270,270,270
+                      }
+                       
+int servoDeltaI[16] = {0, 0, 0, 0, 
+                       0, 0, 0, 0, 
+                       0, 0, 0, 0, 
+                       0, 0, 0, 0};
+int servoDeltaO[16] = {30, 60, 60, 30, 
+                       30, 60, 60, 30, 
+                       30, 60, 60, 30, 
+                       30, 60, 60, 30};
+int servoMin[16] = {540, 510, 170, 150, 
+                    150, 150, 670, 670};
+int servoAttack[16] = {350, 415, 250, 290, 
+                       240, 240, 600, 600};
+int servoMax[16] = {220, 335, 360, 450, 
+                    450, 450, 340, 340};
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("4 servos in a row intensity from angle");
+  Serial.println("8 servos in a row intensity from angle");
 
   pwm.begin();
   
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
-  
-  
-  for (int servonum = 0; servonum < 4; servonum++) {
-    // Drive each servo one at a time
-    pwm.setPWM(servonum, 0, servoMin[servonum]); 
-  }
-  
+  resetServos();  
 }
 
 double getIntensity(uint8_t servonum, int angle) {
@@ -83,8 +99,10 @@ void loop() {
     // read the incoming int:
     tangle = Serial.parseInt();
     if (tangle > 180 || tangle < 0) {
-      if (tangle == 666) {
+      if (tangle == 666) {            // SPECIAL COMMAND GOING NUTS
         bloop = true;
+      }else if (tangle == 999){      // SPECIAL COMMAND RESET
+        resetServos();
       }
       else {
         tangle = angle;
@@ -106,7 +124,7 @@ void loop() {
     Serial.println("Change");
     angle = tangle;
     // our servo # counter
-    for (int servonum = 0; servonum < 4; servonum++) {
+    for (int servonum = 0; servonum < servosAttached; servonum++) {
       // Drive each servo one at a time
       pwm.setPWM(servonum, 0, getIntensity(servonum, angle)); 
     }
@@ -114,4 +132,12 @@ void loop() {
   
   //safety delay
   delay(50);
+}
+// Drive Servos to idle position
+void resetServos()
+{
+  for (int servonum = 0; servonum < servosAttached; servonum++) {
+    // Drive each servo one at a time
+    pwm.setPWM(servonum, 0, servoMin[servonum]); 
+  }
 }
