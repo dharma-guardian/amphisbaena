@@ -2,6 +2,7 @@ import controlP5.*;
 import processing.serial.*;
 
 PShape s;
+float scaleF = 1;
 int xpos, ypos;
 int tolerance = 5;
 float distance;
@@ -16,10 +17,12 @@ ControlP5 cp5;
 boolean bSetup = false;
 
 void setup() {
-    size(400,600);
-    //size(displayWidth, displayHeight); //fullscreen
-    ports = Serial.list(); //change the 0 to a 1 or 2 etc. to match your port
+    //size(400,600);
+    size(displayWidth, displayHeight); //fullscreen
+    ports = Serial.list();
     s = loadShape("car.svg");
+    scaleF = width/400;
+    s.scale(scaleF);
 
     cp5 = new ControlP5(this);
 
@@ -49,37 +52,40 @@ void draw() {
         drawStreet(2*width/3-3);
         streetPos+=2;
         if (streetPos > stripe+gap) streetPos = 0;
-
-        shape(s, width/2-s.width/2, 0);
+        shape(s, width/2-s.width*scaleF/2, -s.height*scaleF/2);
 
         int x = mouseX;
         int y = mouseY;
-
-        shape(s, x-s.width/2, y-s.height/2);
-
-      /*  noStroke();
-        fill(255);
-        ellipse(x, y, 10, 10);
-        stroke(50);
-        strokeWeight(1);
-        line(width/2, 0, x, y);*/
+        shape(s, x-s.width*scaleF/2, y-s.height*scaleF/2);
 
         int devX = x-xpos;
         int devY = y-ypos;
         distance = dist(x, y, width/2, 0)/height*200;
-        text("Distance: " + distance, 170, 10);
+
         float disX = (width/2-x);
         float disY = (0-y);
         angle = atan(Math.abs(disY)/disX) * 57.295;
         if (angle < 0) angle += 180;
-        text("Angle: " + angle, 170, 30);
+
+        //drawValuesNHelpers(x,y);
 
         if(Math.abs(devX) > tolerance || Math.abs(devY) > tolerance) {
-            myPort.write(Math.round(distance));         //send Mouse Position X
+            //myPort.write(Math.round(distance));         //send Mouse Position X
             myPort.write(Math.round(angle));         //send Mouse Position Y
-            println("S:" + distance + ":" + angle);
+            //println("S:" + distance + ":" + angle);
         }
     }
+}
+
+void drawValuesNHelpers(int x, int y) {
+    noStroke();
+    fill(255);
+    ellipse(x, y, 10, 10);
+    stroke(50);
+    strokeWeight(1);
+    line(width/2, 0, x, y);
+    text("Distance: " + distance, 170, 10);
+    text("Angle: " + angle, 170, 30);
 }
 
 void controlEvent(ControlEvent theEvent) {
