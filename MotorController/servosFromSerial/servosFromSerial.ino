@@ -37,7 +37,7 @@ int serialCount, distance, angle;
 double input_tolerance = 2;
 boolean bloop = false;
 int servosAttached = 8;
-boolean debug = true;
+boolean debug = false;
 
 int servoAngle[16] = 
                       {20, 60, 120, 160, 
