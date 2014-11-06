@@ -77,25 +77,32 @@ void setup() {
 
 /**
 * Maps incoming values of angel and distance linear to the range of the addressed servo
+* calculates the intentesity of for the particaular motor between 0 and 1
+* and returns the corresponding pmw pulse
 * @servonum(uint8_t) :servo
 * @angle(int)
 * @distance(int)
 **/
-double getIntensity(uint8_t servonum, int angle) {
-  double intensity = servoMin[servonum];
+double getIntensity(uint8_t servonum, int angle, int distance) {
+  double intensity = 0;
   double deviation = abs(servoAngle[servonum]-angle);
   //is angle inside the range of the servo?
-  if (deviation < servoDeltaO[servonum]) {
+  if (deviation < servoDeltatO[servonum]) {
     //is the angle in the direct hit area of the servo
     if (deviation < servoDeltaI[servonum]) {
-      intensity = servoMax[servonum];
+      intensity = 1;
     }
     else {
-      intensity = map(deviation, servoDeltaO[servonum], servoDeltaI[servonum], servoAttack[servonum], servoMax[servonum]);
+      intensity = map(deviation, servoDeltaO[servonum], servoDeltaI[servonum], 0, 1);
     }
   }
-  return intensity;
 
+  /*if (distance > 200) distance = 200;
+  intensity = intensity * (1 - float(distance)/200);*/
+  double servoValue;
+  if (!intensity) servoValue = servoMin[servonum];
+  else servoValue = map(intensity, 0, 1, servoAttack[servonum], servoMax[servonum]);
+  return servoValue;
 }
 
 /**
@@ -114,7 +121,7 @@ void loop() {
     // our servo # counter
     for (int servonum = 0; servonum < servosAttached; servonum++) {
       // Drive each servo one at a time
-      pwm.setPWM(servonum, 0, getIntensity(servonum, angle));
+      pwm.setPWM(servonum, 0, getIntensity(servonum, angle, distance));
     }
   }
 
@@ -140,7 +147,7 @@ boolean readMonitor() {
         resetServos();
       }
       else {
-        angle = message;
+        distance = message;
       }
       return true;
     }
