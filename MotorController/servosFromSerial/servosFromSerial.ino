@@ -67,15 +67,20 @@ int servoMax[16] = {220, 335, 360, 450,
                     450, 340, 450, 340};
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println("8 servos in a row intensity from angle");
+  Serial.begin(115200);
+  Serial.println("8 servos in a row intensity from angle and distance");
 
   pwm.begin();
-
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
   resetServos();
 }
 
+/**
+* Maps incoming values of angel and distance linear to the range of the addressed servo
+* @servonum(uint8_t) :servo
+* @angle(int)
+* @distance(int)
+**/
 double getIntensity(uint8_t servonum, int angle) {
   double intensity = servoMin[servonum];
   double deviation = abs(servoAngle[servonum]-angle);
@@ -93,6 +98,9 @@ double getIntensity(uint8_t servonum, int angle) {
 
 }
 
+/**
+* Main Loop
+**/
 void loop() {
   boolean change;
   if (debug) {
@@ -115,6 +123,9 @@ void loop() {
   delay(5);
 }
 
+/**
+* Serial Communication reads sendBytes from SerialMonitor for debugging
+**/
 boolean readMonitor() {
   int message;
 
@@ -147,6 +158,9 @@ boolean readMonitor() {
   return false;
 }
 
+/**
+* Serial Com from Serial connection (Processing)
+**/
 boolean readSerialValues() {
   // if we get a valid byte, read analog ins:
   if (Serial.available()) {

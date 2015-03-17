@@ -37,8 +37,7 @@ void setup() {
         cp5.addButton(ports[i])
            .setValue(i)
            .setPosition(bx,by)
-           .setSize(bw,bh)
-           ;
+           .setSize(bw,bh);
     }
 
     bSetup = true;
@@ -47,32 +46,37 @@ void setup() {
 void draw() {
     background(50);
 
+    //Only draw if connected to Arduino
     if (myPort != null) {
+        // Draw street an Car of Seat
         drawStreet(width/3-3);
         drawStreet(2*width/3-3);
         streetPos+=2;
         if (streetPos > stripe+gap) streetPos = 0;
         shape(s, width/2-s.width*scaleF/2, -s.height*scaleF/2);
 
+        //Draw obstacle
         int x = mouseX;
         int y = mouseY;
         shape(s, x-s.width*scaleF/2, y-s.height*scaleF/2);
 
         int devX = x-xpos;
         int devY = y-ypos;
-        distance = dist(x, y, width/2, 0)/height*200;
-
-        float disX = (width/2-x);
-        float disY = (0-y);
-        angle = atan(Math.abs(disY)/disX) * 57.295;
-        if (angle < 0) angle += 180;
-
-        //drawValuesNHelpers(x,y);
 
         if(Math.abs(devX) > tolerance || Math.abs(devY) > tolerance) {
-            //myPort.write(Math.round(distance));         //send Mouse Position X
+
+            distance = dist(x, y, width/2, 0)/height*200;
+
+            float disX = (width/2-x);
+            float disY = (0-y);
+            angle = atan(Math.abs(disY)/disX) * 57.295;
+            if (angle < 0) angle += 180;
+
+            drawValuesNHelpers(x,y);
+
+            // myPort.write(Math.round(distance));         //send Mouse Position X
             myPort.write(Math.round(angle));         //send Mouse Position Y
-            //println("S:" + distance + ":" + angle);
+            // println("S:" + distance + ":" + angle);
         }
     }
 }
@@ -92,7 +96,7 @@ void controlEvent(ControlEvent theEvent) {
     if (bSetup) {
         int portIndex = int(theEvent.getController().getValue());
         String portname = Serial.list()[portIndex];
-        myPort = new Serial(this, portname, 9600);
+        myPort = new Serial(this, portname, 115200);
     }
 }
 
