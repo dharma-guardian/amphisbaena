@@ -1,26 +1,32 @@
 import processing.serial.*;
 
-static class Seat {
+static public final class Seat {
   private Serial arduinoPort;
   private Boolean connected = false;
 
   private Seat() {
     super();
   }
-
-  private static class SingletonHolder {
-     private static final Seat INSTANCE = new Seat();
-  }
+  private static Seat INSTANCE;
 
   public static Seat getInstance() {
-    return SingletonHolder.INSTANCE;
+    if (INSTANCE == null) {
+      INSTANCE = new Seat();
+    }
+    return INSTANCE;
   }
 
-  public void connect(String portName) {
-    // arduinoPort = new Serial(this, portName, 115200);
+  public void connect(String portName, PApplet parent) {
+    arduinoPort = new Serial(parent, portName, 115200);
     connected = true;
   }
 
+  public Boolean isConnected() {
+    return connected;
+  }
+
+  //send dat to Arduino
+  //FIX: protocol
   public void changeMotor(int motorId, int motorValue) {
     arduinoPort.write(motorId);
     arduinoPort.write(motorValue);

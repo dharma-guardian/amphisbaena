@@ -5,13 +5,11 @@ final int SERVOMIN = 150;
 final int SERVOMAX = 670;
 
 ControlP5 cp5;
-DropdownList portList;
-RadioButton motorGrid;
 Knob motorKnob;
 
 Seat theSeat;
-ServoMotor[] motors;
-int selectedMotor;
+ServoMotor[] motors = new ServoMotor[16];
+int selectedMotor = -1;
 
 void setup() {
   size(800,600);
@@ -20,8 +18,8 @@ void setup() {
 
   cp5 = new ControlP5(this);
 
-  for (int m = 15; m > -1; --m) {
-    // motors[m] = new ServoMotor(m, 410, 410, 410);
+  for (int m = 0; m < motors.length; ++m) {
+    motors[m] = new ServoMotor(m);
   }
 
   /**
@@ -31,7 +29,7 @@ void setup() {
   **/
 
   // Draw View for MotorGrid
-  motorGrid = cp5.addRadioButton("motorSelected")
+  RadioButton motorGrid = cp5.addRadioButton("motorSelected")
                  .setPosition(40,80)
                  .setSize(20,20)
                  // .setColorForeground(color(120))
@@ -80,7 +78,7 @@ void setup() {
 
   // Select Port from DropdownList
   String[] ports = Serial.list();
-  portList = cp5.addDropdownList("portList")
+  DropdownList portList = cp5.addDropdownList("portList")
           .setPosition(40, 40)
           .setItemHeight(20)
           .setWidth(200)
@@ -95,7 +93,6 @@ void setup() {
   for (int i = 0; i < ports.length; ++i) {
       portList.addItem(ports[i], i);
   }
-
 }
 
 void draw() {
@@ -109,35 +106,43 @@ void draw() {
 **/
 
 void controlEvent(ControlEvent theEvent) {
-
-  if(theEvent.isFrom(motorGrid)) {
-    selectedMotor = int(theEvent.group().value());
-  }
-  else if (theEvent.isGroup() && "" + theEvent.getGroup() == "portList") {
+  if (theEvent.isGroup() && "" + theEvent.getGroup() == "portList") {
     int portIndex = int(theEvent.getGroup().getValue());
     String portName = Serial.list()[portIndex];
-    theSeat.connect(portName);
+    theSeat.connect(portName, this);
   }
 }
 
+//optimize by calling a standard method and which boundary via parameter
 void setNeutral(int value) {
-  motors[selectedMotor].setNeutralIntensity(int(motorKnob.getValue()));
+  int intensity = int(motorKnob.getValue());
+  motors[selectedMotor].setNeutralIntensity(intensity);
+  println("Setting Neutral Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
 void setAttack(int value) {
-  motors[selectedMotor].setAttackIntensity(int(motorKnob.getValue()));
+  int intensity = int(motorKnob.getValue());
+  motors[selectedMotor].setAttackIntensity(intensity);
+  println("Setting Attack Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
 void setMax(int value) {
-  motors[selectedMotor].setMaxIntensity(int(motorKnob.getValue()));
+  int intensity = int(motorKnob.getValue());
+  motors[selectedMotor].setMaxIntensity(intensity);
+  println("Setting Max Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
+
 void motorChange(int motorValue) {
-  // selectedMotor.setIntensity(theValue);
-  println("a knob event. setting motor to " + motorValue);
+  if (selectedMotor != -1) {
+    motors[selectedMotor].setServoPulse(motorValue);
+    println("a knob event. setting motor to " + motorValue);
+  }
 }
 
 void motorSelected(int m) {
+  selectedMotor = m;
+  motorKnob.setValue(motors[selectedMotor].getServoPulse());
   println("Motor "+ m + " selected");
 }
 

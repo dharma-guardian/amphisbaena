@@ -1,24 +1,36 @@
-class ServoMotor {
-  int id; //the pin of the motor
-  int neutralIntensity;
-  int attackIntensity;
-  int maxIntensity;
+public class ServoMotor {
+  protected int id; //the pin of the motor
+  protected int neutralIntensity;
+  protected int attackIntensity;
+  protected int maxIntensity;
 
-  int servoPulse;
-  Seat theSeat;
+  protected int servoPulse;
+  protected Seat theSeat;
 
   // Constructor
-  ServoMotor(int tmpid, int tmpneutralIntensity, int tmpattackIntensity, int tmpmaxIntensity) {
+  public ServoMotor(int tmpid, int tmpneutralIntensity, int tmpattackIntensity, int tmpmaxIntensity) {
     id = tmpid;
     neutralIntensity = tmpneutralIntensity;
     attackIntensity = tmpattackIntensity;
     maxIntensity = tmpmaxIntensity;
     theSeat = Seat.getInstance();
+    setServoPulse(neutralIntensity);
+  }
+
+  // Constructor
+  public ServoMotor(int tmpid) {
+    this(tmpid, 410, 410, 410);
   }
 
   public void setServoPulse(int value) {
     servoPulse = value;
-    theSeat.changeMotor(id, servoPulse);
+    if(theSeat.isConnected()) {
+      theSeat.changeMotor(id, servoPulse);
+    }
+  }
+
+  public int getServoPulse() {
+    return servoPulse;
   }
 
   public void setIntensity(float intensity) {
