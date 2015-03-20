@@ -47,7 +47,7 @@ void setup() {
                .setRange(SERVOMIN,SERVOMAX)
                .setValue(int((SERVOMAX+SERVOMIN)/2))
                .setPosition(40,280)
-               .setRadius(30)
+               .setRadius(40)
                .setDragDirection(Knob.HORIZONTAL)
                // .setScrollSensitivity(5)
                // .setNumberOfTickMarks(10)
@@ -57,7 +57,19 @@ void setup() {
                // .setColorBackground(color(0, 160, 100))
                // .setColorActive(color(255,255,0))
                ;
-   motorKnob.getCaptionLabel().setVisible(false);
+  motorKnob.getCaptionLabel().setVisible(false);
+
+  cp5.addButton("minus")
+     .setPosition(50,370)
+     .setSize(20,20)
+     .setCaptionLabel("-")
+     ;
+
+  cp5.addButton("plus")
+     .setPosition(90,370)
+     .setSize(20,20)
+     .setCaptionLabel("+")
+     ;
 
   //Motor Setter Buttons
   cp5.addButton("setNeutral")
@@ -106,7 +118,8 @@ void draw() {
 **/
 
 void controlEvent(ControlEvent theEvent) {
-  if (theEvent.isGroup() && "" + theEvent.getGroup() == "portList") {
+
+  if (theEvent.isGroup() && theEvent.getName() == "portList") {
     int portIndex = int(theEvent.getGroup().getValue());
     String portName = Serial.list()[portIndex];
     theSeat.connect(portName, this);
@@ -114,6 +127,17 @@ void controlEvent(ControlEvent theEvent) {
 }
 
 //optimize by calling a standard method and which boundary via parameter
+
+void plus(int value) {
+  int intensity = int(motorKnob.getValue()) + 1;
+  motorKnob.setValue(intensity);
+}
+
+void minus(int value) {
+  int intensity = int(motorKnob.getValue()) - 1;
+  motorKnob.setValue(intensity);
+}
+
 void setNeutral(int value) {
   int intensity = int(motorKnob.getValue());
   motors[selectedMotor].setNeutralIntensity(intensity);

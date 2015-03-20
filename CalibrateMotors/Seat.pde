@@ -17,7 +17,7 @@ static public final class Seat {
   }
 
   public void connect(String portName, PApplet parent) {
-    arduinoPort = new Serial(parent, portName, 115200);
+    arduinoPort = new Serial(parent, portName, 57600);
     connected = true;
   }
 
@@ -25,10 +25,8 @@ static public final class Seat {
     return connected;
   }
 
-  //send dat to Arduino
-  //FIX: protocol
+  //send data to Arduino
   public void changeMotor(int motorId, int motorValue) {
-    arduinoPort.write(motorId);
-    arduinoPort.write(motorValue);
+    arduinoPort.write("kSetMotorIntensity," + motorId + "," + motorValue + ";");
   }
 }
