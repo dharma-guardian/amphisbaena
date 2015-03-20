@@ -10,6 +10,7 @@ uint8_t Motor::getId()
 
 void Motor::setIntensity(uint16_t intensity) {
 	_intensity = intensity;
+	
 }
 uint16_t Motor::getIntensity(){
 	return _intensity;
