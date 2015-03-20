@@ -27,6 +27,6 @@ static public final class Seat {
 
   //send data to Arduino
   public void changeMotor(int motorId, int motorValue) {
-    arduinoPort.write("kSetMotorIntensity," + motorId + "," + motorValue + ";");
+    arduinoPort.write("kSSI," + motorId + "," + motorValue + ";");
   }
 }

@@ -6,6 +6,7 @@ final int SERVOMAX = 670;
 
 ControlP5 cp5;
 Knob motorKnob;
+Textlabel neutralLabel, attackLabel, maxLabel;
 
 Seat theSeat;
 ServoMotor[] motors = new ServoMotor[16];
@@ -18,8 +19,20 @@ void setup() {
 
   cp5 = new ControlP5(this);
 
-  for (int m = 0; m < motors.length; ++m) {
+  //Load values for Motors from config file
+  String filename = "motorValues.txt";
+  File file = new File(sketchPath(filename));
+  if (file.exists()) {
+    String lines[] = loadStrings(filename);
+    for (int m = 0; m < motors.length; ++m) {
+      String[] intensities = split(lines[m], ',');
+      motors[m] = new ServoMotor(m, int(intensities[0]), int(intensities[1]), int(intensities[2]));
+    }
+  }
+  else {
+    for (int m = 0; m < motors.length; ++m) {
     motors[m] = new ServoMotor(m);
+    }
   }
 
   /**
@@ -77,13 +90,44 @@ void setup() {
      .setSize(80,20)
      ;
 
+  neutralLabel = cp5.addTextlabel("neutralLabel")
+                    .setText("null")
+                    .setPosition(240,280)
+                    // .setColorValue(0xffffff00)
+                    // .setFont(createFont("Georgia",20))
+                    ;
+
   cp5.addButton("setAttack")
      .setPosition(140,310)
      .setSize(80,20)
      ;
 
+  attackLabel = cp5.addTextlabel("attackLabel")
+                    .setText("null")
+                    .setPosition(240,310)
+                    // .setColorValue(0xffffff00)
+                    // .setFont(createFont("Georgia",20))
+                    ;
+
   cp5.addButton("setMax")
      .setPosition(140,340)
+     .setSize(80,20)
+     ;
+
+  maxLabel = cp5.addTextlabel("maxLabel")
+                    .setText("null")
+                    .setPosition(240,340)
+                    // .setColorValue(0xffffff00)
+                    // .setFont(createFont("Georgia",20))
+                    ;
+
+  cp5.addButton("neutral")
+     .setPosition(50,410)
+     .setSize(80,20)
+     ;
+
+  cp5.addButton("export")
+     .setPosition(50,440)
      .setSize(80,20)
      ;
 
@@ -141,18 +185,21 @@ void minus(int value) {
 void setNeutral(int value) {
   int intensity = int(motorKnob.getValue());
   motors[selectedMotor].setNeutralIntensity(intensity);
+  neutralLabel.setText("" + intensity);
   println("Setting Neutral Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
 void setAttack(int value) {
   int intensity = int(motorKnob.getValue());
   motors[selectedMotor].setAttackIntensity(intensity);
+  attackLabel.setText("" + intensity);
   println("Setting Attack Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
 void setMax(int value) {
   int intensity = int(motorKnob.getValue());
   motors[selectedMotor].setMaxIntensity(intensity);
+  maxLabel.setText("" + intensity);
   println("Setting Max Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
@@ -167,7 +214,27 @@ void motorChange(int motorValue) {
 void motorSelected(int m) {
   selectedMotor = m;
   motorKnob.setValue(motors[selectedMotor].getServoPulse());
+  neutralLabel.setText("" + motors[selectedMotor].getNeutralIntensity());
+  attackLabel.setText("" + motors[selectedMotor].getAttackIntensity());
+  maxLabel.setText("" + motors[selectedMotor].getMaxIntensity());
   println("Motor "+ m + " selected");
+}
+
+void neutral(int value) {
+  for (int m = 0; m < motors.length; ++m) {
+    println("motor: "+ m + "neutral Intensity" + motors[m].getNeutralIntensity());
+    motors[m].setServoPulse(motors[m].getNeutralIntensity());
+  }
+}
+
+void export(int value) {
+  String[] values = new String[16];
+  for (int m = 0; m < motors.length; ++m) {
+    values[m] = "" + motors[m].getNeutralIntensity() + ","
+                   + motors[m].getAttackIntensity() + ","
+                   + motors[m].getMaxIntensity();
+  }
+  saveStrings("motorValues.txt", values);
 }
 
 /*

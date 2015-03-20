@@ -22,6 +22,11 @@ public class ServoMotor {
     this(tmpid, 410, 410, 410);
   }
 
+  // Constructor
+  public ServoMotor(int tmpid, int tmpneutralIntensity) {
+    this(tmpid, tmpneutralIntensity, 410, 410);
+  }
+
   public void setServoPulse(int value) {
     servoPulse = value;
     if(theSeat.isConnected()) {
@@ -43,6 +48,10 @@ public class ServoMotor {
     setServoPulse(servoPulse);
   }
 
+  public int getNeutralIntensity() {
+    return neutralIntensity;
+  }
+
   public void setNeutralIntensity(int value) {
     neutralIntensity = value;
   }
@@ -51,7 +60,15 @@ public class ServoMotor {
     attackIntensity = value;
   }
 
+  public int getAttackIntensity() {
+    return attackIntensity;
+  }
+
   public void setMaxIntensity(int value) {
     maxIntensity = value;
+  }
+
+  public int getMaxIntensity() {
+    return maxIntensity;
   }
 }

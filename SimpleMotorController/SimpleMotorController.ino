@@ -23,9 +23,9 @@ using namespace std;
 #include <Motor.h>
 #include <CmdMessenger.h>  // CmdMessenger
 
-// MotorVariables 
+// MotorVariables
 uint8_t selectedMotor     = 0;   // Current state of Led
-//uint16_t motorIntensity   = 
+//uint16_t motorIntensity   =
 
 // Attach a new CmdMessenger object to the default Serial port
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
@@ -44,21 +44,21 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMAX  670 // this is the 'maximum' pulse length count (out of 4096)
 
 vector<Motor> motors;
-bool calibration; 
+bool calibration;
 
 // Commands
 enum
 {
-  kSetMotorIntensity,
+  kSSI,
   kResponse
   //kSelectMotor, // Command to request led to be set in specific state
   //kSetIntensity
 };
 
-// Callbacks define on which received commands we take action 
+// Callbacks define on which received commands we take action
 void attachCommandCallbacks()
 {
-  cmdMessenger.attach(kSetMotorIntensity, OnSetMotorIntensity);
+  cmdMessenger.attach(kSSI, OnSetMotorIntensity);
   //cmdMessenger.attach(kSelectMotor, OnSelectMotor);
   //cmdMessenger.attach(kSetIntensity, OnSetIntensity);
 }
@@ -81,10 +81,10 @@ void setup() {
   // Listen on serial connection for messages from the PC
   // 115200 is the max speed on Arduino Uno, Mega, with AT8u2 USB
   // Use 57600 for the Arduino Duemilanove and others with FTDI Serial
-  Serial.begin(57600); 
+  Serial.begin(57600);
 
   // Adds newline to every command
-  cmdMessenger.printLfCr();   
+  cmdMessenger.printLfCr();
 
   // Attach my application's user-defined callback methods
   attachCommandCallbacks();
@@ -122,5 +122,5 @@ void fireMotor(uint8_t motorID, uint16_t motorIntensity)
 // Drive Servos to idle position
 void resetServos()
 {
-  
+
 }
