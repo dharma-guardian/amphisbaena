@@ -1,6 +1,6 @@
 # amphisbaena
 
-Is a hardware low-fidelity prototype to control 16 servo motors embodied in a car seat. We use Arduino with the [16 Channel PWN Servo Driver](https://learn.adafruit.com/16-channel-pwm-servo-driver/overview) to address the servo-motors and Processing to control the the motors via serial communication.
+Is a hardware low-fidelity prototype to control 16 servo motors embedded in a car seat. We use Arduino with the [16 Channel PWN Servo Driver](https://learn.adafruit.com/16-channel-pwm-servo-driver/overview) to address the servo motors and Processing via serial communication for calibration and control.
 
 ## Installation
 ### Install Arduino Libraries:
