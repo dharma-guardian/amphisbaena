@@ -35,19 +35,25 @@ void setup() {
     }
   }
 
-  /**
-  *
-  * Views
-  *
-  **/
+  generateView();
+
+}
+
+void draw() {
+  background(96);
+}
+
+/**
+*
+* Views
+*
+**/
+void generateView() {
 
   // Draw View for MotorGrid
   RadioButton motorGrid = cp5.addRadioButton("motorSelected")
                  .setPosition(40,80)
                  .setSize(20,20)
-                 // .setColorForeground(color(120))
-                 // .setColorActive(color(255))
-                 // .setColorLabel(color(255))
                  .setItemsPerRow(4)
                  .setSpacingColumn(30)
                  .setSpacingRow(30);
@@ -63,12 +69,9 @@ void setup() {
                .setRadius(40)
                .setDragDirection(Knob.HORIZONTAL)
                // .setScrollSensitivity(5)
-               // .setNumberOfTickMarks(10)
+               .setNumberOfTickMarks(10)
                // .setTickMarkLength(4)
                // .snapToTickMarks(true)
-               // .setColorForeground(color(255))
-               // .setColorBackground(color(0, 160, 100))
-               // .setColorActive(color(255,255,0))
                ;
   motorKnob.getCaptionLabel().setVisible(false);
 
@@ -93,8 +96,6 @@ void setup() {
   neutralLabel = cp5.addTextlabel("neutralLabel")
                     .setText("null")
                     .setPosition(240,280)
-                    // .setColorValue(0xffffff00)
-                    // .setFont(createFont("Georgia",20))
                     ;
 
   cp5.addButton("setAttack")
@@ -105,8 +106,6 @@ void setup() {
   attackLabel = cp5.addTextlabel("attackLabel")
                     .setText("null")
                     .setPosition(240,310)
-                    // .setColorValue(0xffffff00)
-                    // .setFont(createFont("Georgia",20))
                     ;
 
   cp5.addButton("setMax")
@@ -117,8 +116,6 @@ void setup() {
   maxLabel = cp5.addTextlabel("maxLabel")
                     .setText("null")
                     .setPosition(240,340)
-                    // .setColorValue(0xffffff00)
-                    // .setFont(createFont("Georgia",20))
                     ;
 
   cp5.addButton("neutral")
@@ -139,8 +136,7 @@ void setup() {
           .setItemHeight(20)
           .setWidth(200)
           .setBarHeight(15)
-          // .setColorBackground(color(60))
-          // .setColorActive(color(255, 128))
+          .setHeight(400)
           ;
   portList.captionLabel().set("Select Port");
   portList.captionLabel().style().marginTop = 3;
@@ -149,10 +145,6 @@ void setup() {
   for (int i = 0; i < ports.length; ++i) {
       portList.addItem(ports[i], i);
   }
-}
-
-void draw() {
-  background(128);
 }
 
 /**
@@ -224,6 +216,7 @@ void neutral(int value) {
   for (int m = 0; m < motors.length; ++m) {
     println("motor: "+ m + "neutral Intensity" + motors[m].getNeutralIntensity());
     motors[m].setServoPulse(motors[m].getNeutralIntensity());
+    if (selectedMotor == m) motorKnob.setValue(motors[m].getNeutralIntensity());
   }
 }
 

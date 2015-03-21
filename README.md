@@ -1,8 +1,12 @@
-amphisbaena
-===========
+# amphisbaena
 
-Is a hardware low-fidelity prototype for creating tactile stimulations in the dorsal area of a car driver to enhance oversight in the periphery. We use Arduino to control several servo-motors to poke the driver through the seat.
+Is a hardware low-fidelity prototype to control 16 servo motors embedded in a car seat. We use Arduino with the [16 Channel PWN Servo Driver](https://learn.adafruit.com/16-channel-pwm-servo-driver/overview) to address the servo motors and Processing via serial communication for calibration and control.
 
-Installation
-------------
-Install the Servo Library from https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library.
+## Installation
+### Install Arduino Libraries:
+* Adafruit PWM Servo Driver from https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library.
+* Command Messenger https://github.com/thijse/Arduino-Libraries/tree/master/CmdMessenger from http://thijs.elenbaas.net/downloads/?did=9
+* StandardCplusplus from https://github.com/maniacbug/StandardCplusplus
+
+### Install Processing Library
+* ControlP5: Open the Processing IDE and select from the menu `Sketch > Import Library... > Add Library...` OR download it from http://www.sojamo.de/libraries/controlP5/
