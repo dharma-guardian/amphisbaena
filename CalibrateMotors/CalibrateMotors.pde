@@ -35,13 +35,14 @@ void setup() {
     motors[m] = new ServoMotor(m);
     }
   }
-
+  theSeat.registerMotors(motors);
   generateView();
 
 }
 
 void draw() {
   background(96);
+  theSeat.process();
 }
 
 /**

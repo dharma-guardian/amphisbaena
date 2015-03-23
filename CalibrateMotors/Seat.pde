@@ -1,8 +1,11 @@
 import processing.serial.*;
 
 static public final class Seat {
+  private static final char HEADER = '|';
   private Serial arduinoPort;
   private Boolean connected = false;
+  private Boolean changed = false;
+  private ServoMotor[] motors = new ServoMotor[16];
 
   private Seat() {
     super();
@@ -23,6 +26,24 @@ static public final class Seat {
 
   public Boolean isConnected() {
     return connected;
+  }
+
+  public void registerMotors(ServoMotor[] tmpmotors) {
+    motors = tmpmotors;
+  }
+
+  public void registerChange() {
+    changed = true;
+  }
+
+  public void process() {
+    if (connected && changed) {
+      arduinoPort.write(HEADER);
+      for (int i = 0; i < motors.length; ++i) {
+        arduinoPort.write(motors[i].getServoPulse());
+      }
+      changed = false;
+    }
   }
 
   //send data to Arduino
