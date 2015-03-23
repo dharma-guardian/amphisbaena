@@ -13,8 +13,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define HEADER 'M'
 #define MESSAGE_BYTES 33
 
-uint16_t motorsMin[] = {160,165,635,555,165,165,580,620,170,159,550,550,165,161,550,550};
-uint16_t motorsMax[] = {466,435,339,276,445,477,309,305,445,452,260,267,435,488,247,232};
+uint16_t motorsMin[] = {167,165,635,555,173,165,580,620,170,159,550,550,165,161,550,550};
+uint16_t motorsMax[] = {472,435,339,276,453,477,309,305,450,452,260,269,440,488,258,253};
 
 void setup() {
   // Listen on serial connection for messages from the PC
