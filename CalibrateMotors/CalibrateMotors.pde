@@ -55,7 +55,6 @@ void draw() {
     }
   }
   theSeat.process();
-  // calculateMotorIntensities(,obstacle.arrayValue()[1]);
 }
 
 /**
