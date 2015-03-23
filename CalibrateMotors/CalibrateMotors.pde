@@ -45,8 +45,17 @@ void setup() {
 
 void draw() {
   background(96);
+  if (renderObstacle) {
+    float disX = -50 + obstacle.arrayValue()[0];                    // distance to horizontal center
+    float angle = atan(obstacle.arrayValue()[1] / disX) * 57.295; // angle from distance x and y
+    if (angle < 0) angle += 180;
+    for (int i = 0; i < motors.length; ++i) {
+      motors[i].setIntensityFromAngle(angle);
+      if (i == 0) println("Motor: " + i + ", angle: " + angle + ", pulse: " + motors[i].getServoPulse());
+    }
+  }
   theSeat.process();
-  // calculateMotorIntensities(obstacle.arrayValue()[0],obstacle.arrayValue()[1]);
+  // calculateMotorIntensities(,obstacle.arrayValue()[1]);
 }
 
 /**
@@ -162,7 +171,6 @@ void generateView() {
          .setPosition(280,60)
          .setSize(400,400)
          .setArrayValue(new float[] {50, 50})
-         // .disableCrosshair()
          ;
 
   addMouseWheelListener();
@@ -253,8 +261,7 @@ void export(int value) {
 
 void readObstacle(float[] o) {
   renderObstacle = boolean(int(o[0]));
-  println("o: " + o);
-  println("renderObstacle: "+renderObstacle);
+  if (renderObstacle == false) neutral(0);
 }
 
 // Add mouseWheel Support
