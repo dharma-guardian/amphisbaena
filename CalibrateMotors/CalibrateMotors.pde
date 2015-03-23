@@ -38,6 +38,7 @@ void setup() {
   theSeat.registerMotors(motors);
   generateView();
 
+  frameRate(12); // Quickfix: wait for response from Arduino before sending new values
 }
 
 void draw() {
