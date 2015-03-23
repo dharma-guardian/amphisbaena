@@ -4,6 +4,8 @@ public class ServoMotor {
   protected int attackIntensity;
   protected int maxIntensity;
 
+  protected int horizontalAngle;
+
   protected int servoPulse;
   protected Seat theSeat;
 

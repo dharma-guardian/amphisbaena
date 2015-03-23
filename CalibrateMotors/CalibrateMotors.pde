@@ -8,6 +8,8 @@ final int SERVOMAX = 670;
 ControlP5 cp5;
 Knob motorKnob;
 Textlabel neutralLabel, attackLabel, maxLabel;
+Slider2D obstacle;
+boolean renderObstacle = false;
 
 Seat theSeat;
 ServoMotor[] motors = new ServoMotor[SERVONUM];
@@ -44,6 +46,7 @@ void setup() {
 void draw() {
   background(96);
   theSeat.process();
+  // calculateMotorIntensities(obstacle.arrayValue()[0],obstacle.arrayValue()[1]);
 }
 
 /**
@@ -107,9 +110,9 @@ void generateView() {
      ;
 
   attackLabel = cp5.addTextlabel("attackLabel")
-                    .setText("null")
-                    .setPosition(240,310)
-                    ;
+                   .setText("null")
+                   .setPosition(240,310)
+                   ;
 
   cp5.addButton("setMax")
      .setPosition(140,340)
@@ -117,9 +120,9 @@ void generateView() {
      ;
 
   maxLabel = cp5.addTextlabel("maxLabel")
-                    .setText("null")
-                    .setPosition(240,340)
-                    ;
+                .setText("null")
+                .setPosition(240,340)
+                ;
 
   cp5.addButton("neutral")
      .setPosition(50,410)
@@ -148,6 +151,21 @@ void generateView() {
   for (int i = 0; i < ports.length; ++i) {
       portList.addItem(ports[i], i);
   }
+
+  cp5.addCheckBox("readObstacle")
+     .setPosition(280, 20)
+     .setSize(20, 20)
+     .addItem("renderObstacle", 0)
+     ;
+
+  obstacle = cp5.addSlider2D("obstacle")
+         .setPosition(280,60)
+         .setSize(400,400)
+         .setArrayValue(new float[] {50, 50})
+         // .disableCrosshair()
+         ;
+
+  addMouseWheelListener();
 }
 
 /**
@@ -231,6 +249,22 @@ void export(int value) {
                    + motors[m].getMaxIntensity();
   }
   saveStrings("motorValues.txt", values);
+}
+
+void readObstacle(float[] o) {
+  renderObstacle = boolean(int(o[0]));
+  println("o: " + o);
+  println("renderObstacle: "+renderObstacle);
+}
+
+// Add mouseWheel Support
+void addMouseWheelListener() {
+  frame.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+    public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
+      cp5.setMouseWheelRotation(e.getWheelRotation());
+    }
+  }
+  );
 }
 
 /*
