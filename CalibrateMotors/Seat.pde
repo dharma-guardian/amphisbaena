@@ -37,12 +37,24 @@ static public final class Seat {
   }
 
   public void process() {
-    if (connected && changed) {
-      arduinoPort.write(HEADER);
-      for (int i = 0; i < motors.length; ++i) {
-        arduinoPort.write(motors[i].getServoPulse());
+    if (connected) {
+      while (arduinoPort.available() > 0)
+      {
+        String msg = arduinoPort.readStringUntil('\n');
+        if (msg != null) {
+          println("Serial: " + msg);
+        }
       }
-      changed = false;
+
+      if (changed) {
+        arduinoPort.write(HEADER);
+        for (int i = 0; i < motors.length; ++i) {
+          int value = motors[i].getServoPulse();
+          arduinoPort.write((char)(value / 256));
+          arduinoPort.write((char)(value & 0xff));
+        }
+        changed = false;
+      }
     }
   }
 
