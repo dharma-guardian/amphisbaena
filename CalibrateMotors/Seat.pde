@@ -42,7 +42,7 @@ static public final class Seat {
       {
         String msg = arduinoPort.readStringUntil('\n');
         if (msg != null) {
-          println("Serial: " + msg);
+          print("Serial: " + msg);
         }
       }
 
@@ -56,10 +56,5 @@ static public final class Seat {
         changed = false;
       }
     }
-  }
-
-  //send data to Arduino
-  public void changeMotor(int motorId, int motorValue) {
-    arduinoPort.write("kSSI," + motorId + "," + motorValue + ";");
   }
 }

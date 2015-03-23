@@ -1,1 +1,0 @@
-#define MOTORNEUTRAL {300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300} // holds the neutral positions of ach of the attached motors
