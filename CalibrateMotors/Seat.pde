@@ -5,7 +5,7 @@ static public final class Seat {
   private Serial arduinoPort;
   private Boolean connected = false;
   private Boolean changed = false;
-  private ServoMotor[] motors = new ServoMotor[16];
+  private ServoMotor[] motors = new ServoMotor[SERVONUM];
 
   private Seat() {
     super();
