@@ -1,34 +1,19 @@
 /***************************************************
-  This is an example for our Adafruit 16-channel PWM & Servo driver
-  Servo test - this will drive 16 servos, one after the other
-
-  Pick one up today in the adafruit shop!
-  ------> http://www.adafruit.com/products/815
-
-  These displays use I2C to communicate, 2 pins are required to
-  interface. For Arduino UNOs, thats SCL -> Analog 5, SDA -> Analog 4
-
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.
-  BSD license, all text above must be included in any redistribution
- ****************************************************/
+  Advanced Seat 
+****************************************************/
 #include <StandardCplusplus.h>
 #include <vector>
 using namespace std;
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <Motor.h>
-#include <CmdMessenger.h>  // CmdMessenger
+//#include <CmdMessenger.h>  // CmdMessenger
 
 // MotorVariables
 uint8_t selectedMotor     = 0;   // Current state of Led
-//uint16_t motorIntensity   =
 
 // Attach a new CmdMessenger object to the default Serial port
-CmdMessenger cmdMessenger = CmdMessenger(Serial);
+//CmdMessenger cmdMessenger = CmdMessenger(Serial);
 
 // called this way, it uses the default address 0x40
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -42,39 +27,17 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define MOTORCOUNT 16
 #define SERVOMIN  150 // this is the 'minimum' pulse length count (out of 4096)
 #define SERVOMAX  670 // this is the 'maximum' pulse length count (out of 4096)
+
+#define HEADER 'M'
+#define MESSAGE_BYTES 32
+
 uint16_t motorsMin[]{160,165,635,555,165,165,580,620,170,159,550,550,165,161,550,550};
 uint16_t motorsMax[]{466,435,339,276,445,477,309,305,445,452,260,267,435,488,247,232};
 vector<Motor> motors;
 bool calibration;
 
-// Commands
-enum
-{
-  kS,
-  kResponse
-  //kSelectMotor, // Command to request led to be set in specific state
-  //kSetIntensity
-};
 
-// Callbacks define on which received commands we take action
-void attachCommandCallbacks()
-{
-  cmdMessenger.attach(kS, OnSetMotorIntensity);
-  //cmdMessenger.attach(kSelectMotor, OnSelectMotor);
-  //cmdMessenger.attach(kSetIntensity, OnSetIntensity);
-}
 
-void OnSetMotorIntensity()
-{
-  uint8_t motorID = cmdMessenger.readInt16Arg();
-  uint16_t motorIntensity = cmdMessenger.readInt16Arg();
-  cmdMessenger.sendCmd(kResponse,"MotorID: ");
-  cmdMessenger.sendCmd(kResponse,motorID);
-  cmdMessenger.sendCmd(kResponse,"MotorIntensity: ");
-  cmdMessenger.sendCmd(kResponse,motorIntensity);
-  fireMotor(motorID, motorIntensity);
-  delay(5);
-}
 
 
 void setup() {
@@ -85,11 +48,6 @@ void setup() {
   // Use 57600 for the Arduino Duemilanove and others with FTDI Serial
   Serial.begin(57600);
 
-  // Adds newline to every command
-  cmdMessenger.printLfCr();
-
-  // Attach my application's user-defined callback methods
-  attachCommandCallbacks();
 
   // Create #MOTORCOUNT Motor objects and push them to vector motors
   for (int i=0; i <= MOTORCOUNT; i++)
@@ -102,8 +60,8 @@ void setup() {
   resetMotors();
   for(int i=0; i<MOTORCOUNT;i++)
   {
-    cmdMessenger.sendCmd(kResponse,"Motor ");
-    cmdMessenger.sendCmd(kResponse,motors[i].getId());
+    //Serial.println("Motor ");
+    //Serial.println(motors[i].getId());
   }
 }
 
@@ -112,7 +70,32 @@ void setup() {
 **/
 void loop() {
   // Process incoming serial data, and perform callbacks
-  cmdMessenger.feedinSerialData();
+  if ( Serial.available() >= MESSAGE_BYTES)
+  {
+    if( Serial.read() == HEADER)
+    {
+      
+        for(int i=0; i<MOTORCOUNT; i++){
+            //Serial.readBytes(inputbuffer, 2);
+            //motors[i] = word(inputbuffer);
+            uint16_t val = Serial.read()*256;
+            val = val + Serial.read();
+            fireMotor(i, val);
+            Serial.print('Motor: ');
+            Serial.print(i);
+            Serial.print(', Val: ');
+            Serial.println(val);
+        }
+      }
+  }
+
+  
+}
+
+
+uint16_t readSerialValues()
+{
+  
 }
 
 void fireMotor(uint8_t motorID, uint16_t motorIntensity)
@@ -126,7 +109,7 @@ void fireMotor(uint8_t motorID, uint16_t motorIntensity)
     msg = msg+String(motorsMin[motorID])+", Val: ";
     msg = msg+String(motorIntensity)+", Max: ";
     msg = msg+String(motorsMax[motorID]);
-    cmdMessenger.sendCmd(kResponse,msg);
+    Serial.println(msg);
   }
 }
 

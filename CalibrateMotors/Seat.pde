@@ -1,7 +1,7 @@
 import processing.serial.*;
 
 static public final class Seat {
-  private static final char HEADER = '|';
+  private static final char HEADER = 'M';
   private Serial arduinoPort;
   private Boolean connected = false;
   private Boolean changed = false;
