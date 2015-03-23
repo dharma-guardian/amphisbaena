@@ -1,6 +1,7 @@
 import controlP5.*;
 import processing.serial.*;
 
+static final int SERVONUM = 16;
 final int SERVOMIN = 150;
 final int SERVOMAX = 670;
 
@@ -9,7 +10,7 @@ Knob motorKnob;
 Textlabel neutralLabel, attackLabel, maxLabel;
 
 Seat theSeat;
-ServoMotor[] motors = new ServoMotor[16];
+ServoMotor[] motors = new ServoMotor[SERVONUM];
 int selectedMotor = -1;
 
 void setup() {
@@ -221,7 +222,7 @@ void neutral(int value) {
 }
 
 void export(int value) {
-  String[] values = new String[16];
+  String[] values = new String[SERVONUM];
   for (int m = 0; m < motors.length; ++m) {
     values[m] = "" + motors[m].getNeutralIntensity() + ","
                    + motors[m].getAttackIntensity() + ","
