@@ -42,14 +42,15 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define MOTORCOUNT 16
 #define SERVOMIN  150 // this is the 'minimum' pulse length count (out of 4096)
 #define SERVOMAX  670 // this is the 'maximum' pulse length count (out of 4096)
-
+uint16_t motorsMin[]{160,165,635,555,165,165,580,620,170,159,550,550,165,161,550,550};
+uint16_t motorsMax[]{466,435,339,276,445,477,309,305,445,452,260,267,435,488,247,232};
 vector<Motor> motors;
 bool calibration;
 
 // Commands
 enum
 {
-  kSSI,
+  kS,
   kResponse
   //kSelectMotor, // Command to request led to be set in specific state
   //kSetIntensity
@@ -58,7 +59,7 @@ enum
 // Callbacks define on which received commands we take action
 void attachCommandCallbacks()
 {
-  cmdMessenger.attach(kSSI, OnSetMotorIntensity);
+  cmdMessenger.attach(kS, OnSetMotorIntensity);
   //cmdMessenger.attach(kSelectMotor, OnSelectMotor);
   //cmdMessenger.attach(kSetIntensity, OnSetIntensity);
 }
@@ -72,6 +73,7 @@ void OnSetMotorIntensity()
   cmdMessenger.sendCmd(kResponse,"MotorIntensity: ");
   cmdMessenger.sendCmd(kResponse,motorIntensity);
   fireMotor(motorID, motorIntensity);
+  delay(5);
 }
 
 
@@ -97,7 +99,7 @@ void setup() {
 
   pwm.begin();
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
-  //resetServos();
+  resetMotors();
   for(int i=0; i<MOTORCOUNT;i++)
   {
     cmdMessenger.sendCmd(kResponse,"Motor ");
@@ -115,12 +117,25 @@ void loop() {
 
 void fireMotor(uint8_t motorID, uint16_t motorIntensity)
 {
-  pwm.setPWM(motorID, 0, motorIntensity);
+  if((motorsMin[motorID]<motorsMax[motorID] && motorIntensity>=motorsMin[motorID] && motorIntensity<=motorsMax[motorID])||(motorsMin[motorID]>motorsMax[motorID] && motorIntensity<=motorsMin[motorID] && motorIntensity>=motorsMax[motorID]))
+  {
+    pwm.setPWM(motorID, 0, motorIntensity);
+    delay(20);
+  }else{
+    String msg = String(motorID)+" out of bounds. Min: ";
+    msg = msg+String(motorsMin[motorID])+", Val: ";
+    msg = msg+String(motorIntensity)+", Max: ";
+    msg = msg+String(motorsMax[motorID]);
+    cmdMessenger.sendCmd(kResponse,msg);
+  }
 }
 
 
 // Drive Servos to idle position
-void resetServos()
+void resetMotors()
 {
-
+  for(uint8_t i=0; i<MOTORCOUNT; i++){
+      fireMotor(i, motorsMin[i]);
+      delay(100);
+  }
 }
