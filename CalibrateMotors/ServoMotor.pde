@@ -28,9 +28,9 @@ public class ServoMotor {
   }
 
   public void setServoPulse(int value) {
-    servoPulse = value;
-    if(theSeat.isConnected()) {
-      theSeat.changeMotor(id, servoPulse);
+    if (servoPulse != value) {
+      servoPulse = value;
+      theSeat.registerChange();
     }
   }
 
@@ -39,13 +39,14 @@ public class ServoMotor {
   }
 
   public void setIntensity(float intensity) {
+    int tmpservoPulse;
     if (intensity == 0) {
-      servoPulse = neutralIntensity;
+      tmpservoPulse = neutralIntensity;
     }
     else {
-      servoPulse = int(map(intensity, 0, 1, attackIntensity, maxIntensity));
+      tmpservoPulse = int(map(intensity, 0, 1, attackIntensity, maxIntensity));
     }
-    setServoPulse(servoPulse);
+    setServoPulse(tmpservoPulse);
   }
 
   public int getNeutralIntensity() {
