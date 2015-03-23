@@ -1,4 +1,4 @@
-#include <Motor.h>
+#include "Motor.h"
 #include <Adafruit_PWMServoDriver.h>
 
 Motor::Motor(uint8_t motorId, uint16_t minIntensityAbs, uint16_t maxIntensityAbs) : _motorId(motorId), _minIntensityAbs(minIntensityAbs), _maxIntensityAbs(maxIntensityAbs){}
