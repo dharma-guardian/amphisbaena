@@ -13,7 +13,7 @@ ServoMotor[] motors = new ServoMotor[16];
 int selectedMotor = -1;
 
 void setup() {
-  size(800,600);
+  size(800,600,P2D);
 
   theSeat = Seat.getInstance();
 
