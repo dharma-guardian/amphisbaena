@@ -21,13 +21,13 @@ public class ServoMotor {
     fov = tmpfov;
     switch (floor(tmpid / 4)) {
       case 0 :
-        activeDistance = 60;
+        activeDistance = 80;
       break;
       case 1 :
         activeDistance = 120;
       break;
       case 2 :
-        activeDistance = 120;
+        activeDistance = 100;
       break;
       case 3 :
         activeDistance = 60;
