@@ -19,6 +19,20 @@ public class ServoMotor {
     maxIntensity = tmpmaxIntensity;
     horizontalAngle = tmpangle;
     fov = tmpfov;
+    switch (floor(tmpid / 4)) {
+      case 0 :
+        activeDistance = 60;
+      break;
+      case 1 :
+        activeDistance = 120;
+      break;
+      case 2 :
+        activeDistance = 120;
+      break;
+      case 3 :
+        activeDistance = 60;
+      break;
+    }
     theSeat = Seat.getInstance();
     setServoPulse(neutralIntensity);
   }
