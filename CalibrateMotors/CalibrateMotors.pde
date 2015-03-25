@@ -46,12 +46,19 @@ void setup() {
 void draw() {
   background(96);
   if (renderObstacle) {
-    float disX = -50 + obstacle.arrayValue()[0];                    // distance to horizontal center
-    float angle = atan(obstacle.arrayValue()[1] / disX) * 57.295; // angle from distance x and y
+    float x = obstacle.arrayValue()[0];
+    float y = obstacle.arrayValue()[1];
+
+    // calc distance [0,120]
+    float distance = abs(dist(x, y, 50, 0));
+
+    //calc angle
+    float disX = x - 50;                  // distance to horizontal center
+    float angle = atan(y / disX) * 57.295; // angle from distance x and y
     if (angle < 0) angle += 180;
     for (int i = 0; i < motors.length; ++i) {
-      motors[i].setIntensityFromAngle(angle);
-      if (i == 0) println("Motor: " + i + ", angle: " + angle + ", pulse: " + motors[i].getServoPulse());
+      motors[i].setIntensityFromAngleAndDistance(angle, distance);
+      if (i == 0) println("Motor: " + i + ", angle: " + angle + ", distance: " + distance + ", pulse: " + motors[i].getServoPulse());
     }
   }
   theSeat.process();

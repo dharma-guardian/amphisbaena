@@ -6,6 +6,7 @@ public class ServoMotor {
 
   protected int horizontalAngle;
   protected int fov;
+  protected int activeDistance = 120;
 
   protected int servoPulse;
   protected Seat theSeat;
@@ -28,7 +29,7 @@ public class ServoMotor {
     switch (tmpid % 4) {
       case 0 :
         horizontalAngle = 20;
-        fov = 30;
+        fov = 60;
       break;
       case 1 :
         horizontalAngle = 60;
@@ -40,7 +41,7 @@ public class ServoMotor {
       break;
       case 3 :
         horizontalAngle = 160;
-        fov = 30;
+        fov = 60;
       break;
     }
   }
@@ -81,6 +82,19 @@ public class ServoMotor {
     //is angle inside the range of the servo?
     if (deviation <= fov) {
       float intensity = map(deviation, 0, fov, 0.8, 0); // set max intensity to 0.8
+      setIntensity(intensity);
+    }
+    else {
+      setIntensity(0);
+    }
+  }
+
+  public void setIntensityFromAngleAndDistance(float angle, float distance) {
+    float deviation = abs(horizontalAngle - angle);
+    //is angle inside the range of the servo?
+    if (deviation <= fov) {
+      float intensity = map(deviation, 0, fov, 0.8, 0); // set max intensity to 0.8
+      intensity = intensity * map(distance, 0, activeDistance, 1, 0);
       setIntensity(intensity);
     }
     else {
