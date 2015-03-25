@@ -1,9 +1,12 @@
 import controlP5.*;
 import processing.serial.*;
+import spacebrew.*;
 
 static final int SERVONUM = 16;
 final int SERVOMIN = 150;
 final int SERVOMAX = 670;
+
+Spacebrew sb;
 
 ControlP5 cp5;
 Knob motorKnob;
@@ -41,6 +44,18 @@ void setup() {
   generateView();
 
   frameRate(12); // Quickfix: wait for response from Arduino before sending new values
+
+  // instantiate the spacebrewConnection variable
+  sb = new Spacebrew( this );
+
+  // declare your subscribers
+  sb.addSubscribe( "heading", "range" );
+
+  // connect to spacebrew
+  String server      = "ws://spacebrew.icts.sbg.ac.at:9000";
+  String name        = "Seat";
+  String description = "Client that receives heading data from OpenDS";
+  sb.connect(server, name, description );
 }
 
 void draw() {
@@ -62,6 +77,11 @@ void draw() {
     }
   }
   theSeat.process();
+}
+
+
+void onRangeMessage( String name, int value ){
+  println("got range message " + name + " : " + value);
 }
 
 /**

@@ -9,4 +9,6 @@ Is a hardware low-fidelity prototype to control 16 servo motors embedded in a ca
 * Adafruit PWM Servo Driver from https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library.
 
 ### Install Processing Library
-* ControlP5: Open the Processing IDE and select from the menu `Sketch > Import Library... > Add Library...` OR download it from http://www.sojamo.de/libraries/controlP5/
+Open the Processing IDE and select from the menu `Sketch > Import Library... > Add Library...`
+* UI library `ControlP5` OR download it from http://www.sojamo.de/libraries/controlP5/
+* Client spacebrew library `SpacebrewP5` OR download it from https://github.com/Spacebrew/spacebrewP5
