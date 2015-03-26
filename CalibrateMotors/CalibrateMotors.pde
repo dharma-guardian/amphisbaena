@@ -43,7 +43,7 @@ void setup() {
   theSeat.registerMotors(motors);
   generateView();
 
-  frameRate(12); // Quickfix: wait for response from Arduino before sending new values
+  frameRate(240);
 
   // instantiate the spacebrewConnection variable
   sb = new Spacebrew( this );
@@ -73,7 +73,7 @@ void draw() {
     if (angle < 0) angle += 180;
     for (int i = 0; i < motors.length; ++i) {
       motors[i].setIntensityFromAngleAndDistance(angle, distance);
-      if (i == 0) println("Motor: " + i + ", angle: " + angle + ", distance: " + distance + ", pulse: " + motors[i].getServoPulse());
+      // if (i == 0) println("Motor: " + i + ", angle: " + angle + ", distance: " + distance + ", pulse: " + motors[i].getServoPulse());
     }
   }
   theSeat.process();

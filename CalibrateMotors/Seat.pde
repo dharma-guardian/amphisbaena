@@ -2,10 +2,13 @@ import processing.serial.*;
 
 static public final class Seat {
   private static final char HEADER = 'M';
+  private static final int SENDDELAY = 70;
+  private PApplet parent;
   private Serial arduinoPort;
   private Boolean connected = false;
   private Boolean changed = false;
   private ServoMotor[] motors = new ServoMotor[SERVONUM];
+  private int lastSend;
 
   private Seat() {
     super();
@@ -19,7 +22,8 @@ static public final class Seat {
     return INSTANCE;
   }
 
-  public void connect(String portName, PApplet parent) {
+  public void connect(String portName, PApplet tmpparent) {
+    parent = tmpparent;
     arduinoPort = new Serial(parent, portName, 57600);
     connected = true;
   }
@@ -46,7 +50,8 @@ static public final class Seat {
         }
       }
 
-      if (changed) {
+      int t = parent.millis();
+      if (changed && (t - lastSend) > SENDDELAY) {
         arduinoPort.write(HEADER);
         for (int i = 0; i < motors.length; ++i) {
           int value = motors[i].getServoPulse();
@@ -54,6 +59,7 @@ static public final class Seat {
           arduinoPort.write((char)(value & 0xff));
         }
         changed = false;
+        lastSend = t;
       }
     }
   }
