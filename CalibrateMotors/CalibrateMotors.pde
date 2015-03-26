@@ -3,10 +3,14 @@ import processing.serial.*;
 import spacebrew.*;
 
 static final int SERVONUM = 16;
-final int SERVOMIN = 150;
-final int SERVOMAX = 670;
+static final int SERVOMIN = 150;
+static final int SERVOMAX = 670;
+static final float ROADWIDTH = 18.5;
+static final float BACKWARDRANGE = ROADWIDTH * 2; //if you change this value, adjust the size of the visual representation slider2D
 
 Spacebrew sb;
+int driverHeading = 0;
+float driverPositionX = 0;
 
 ControlP5 cp5;
 Knob motorKnob;
@@ -19,7 +23,7 @@ ServoMotor[] motors = new ServoMotor[SERVONUM];
 int selectedMotor = -1;
 
 void setup() {
-  size(800,600,P2D);
+  size(720,720,P2D);
 
   theSeat = Seat.getInstance();
 
@@ -51,37 +55,73 @@ void setup() {
   // declare your subscribers
   sb.addSubscribe( "heading", "range" );
 
+  // declare your subscribers
+  sb.addSubscribe( "positonX", "string" );
+
   // connect to spacebrew
   String server      = "ws://spacebrew.icts.sbg.ac.at:9000";
   String name        = "Seat";
-  String description = "Client that receives heading data from OpenDS";
-  sb.connect(server, name, description );
+  String description = "Client that receives heading and x-position data from OpenDS";
+  sb.connect(server, name, description);
 }
 
 void draw() {
   background(96);
   if (renderObstacle) {
-    float x = obstacle.arrayValue()[0];
-    float y = obstacle.arrayValue()[1];
+    //Obstacle Positon in rear space of the driver
+    float obstacleX = (obstacle.arrayValue()[0] - 50) * 0.01 * ROADWIDTH;
+    float obstacleY = obstacle.arrayValue()[1] * 0.01 * BACKWARDRANGE;
 
-    // calc distance [0,120]
-    float distance = abs(dist(x, y, 50, 0));
+    // calc distance in the range [0.0-1.0]
+    float distance = abs(dist(obstacleX, obstacleY, driverPositionX, 0)) / BACKWARDRANGE;
 
     //calc angle
-    float disX = x - 50;                  // distance to horizontal center
-    float angle = atan(y / disX) * 57.295; // angle from distance x and y
-    if (angle < 0) angle += 180;
+    float lateralDistance = obstacleX - driverPositionX;      // lateral distance obstacle to driver
+
+    float angle;
+    //avoid zero division
+    if (lateralDistance != 0) {
+      angle = atan(obstacleY / lateralDistance) * 57.295; // angle from obstacle to driver
+    }
+    else {
+      angle = 90;
+    }
+    //move negativ angles to range between 180 and 270
+    if (lateralDistance >= 0) {
+      angle += 90;
+    }
+    else {
+      angle += 270;
+    }
+    // print("Angle from atan: " + angle + ", heading: " + driverHeading);
+    //subtract heading of the driver to the angle
+    angle = (angle - driverHeading * 360 / 1024) % 360;
+    //if negativ we have to add 360 to get range [90-270]
+    if (angle < 0) angle += 360;
+
+    // print("Angle + heading" + angle);
+
+    // print("Angle: " + angle + ", Distance: " + distance + "obstacleX: " + obstacleX + "obstacleY: " + obstacleY);
     for (int i = 0; i < motors.length; ++i) {
-      motors[i].setIntensityFromAngleAndDistance(angle, distance);
-      // if (i == 0) println("Motor: " + i + ", angle: " + angle + ", distance: " + distance + ", pulse: " + motors[i].getServoPulse());
+      motors[i].setIntensityFromAngleAndDistance(angle, distance );
+      // if (i == 0) {
+      //   println("Motor: " + i + ", Pulse: " + motors[i].getServoPulse());
+      // }
     }
   }
+
   theSeat.process();
 }
 
+void onStringMessage( String name, String value) {
+  driverPositionX = parseFloat(value);
+  // println("got string message " + name + " : " + value);
+}
 
-void onRangeMessage( String name, int value ){
-  println("got range message " + name + " : " + value);
+
+void onRangeMessage( String name, int value ) {
+  driverHeading = value;
+  // println("got range message " + name + " : " + value);
 }
 
 /**
@@ -195,7 +235,7 @@ void generateView() {
 
   obstacle = cp5.addSlider2D("obstacle")
          .setPosition(280,60)
-         .setSize(400,400)
+         .setSize(300,600)
          .setArrayValue(new float[] {50, 50})
          ;
 

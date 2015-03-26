@@ -6,7 +6,7 @@ public class ServoMotor {
 
   protected int horizontalAngle;
   protected int fov;
-  protected int activeDistance = 120;
+  protected float activeDistance = 1;
 
   protected int servoPulse;
   protected Seat theSeat;
@@ -21,16 +21,16 @@ public class ServoMotor {
     fov = tmpfov;
     switch (floor(tmpid / 4)) {
       case 0 :
-        activeDistance = 80;
+        activeDistance = 0.66;
       break;
       case 1 :
-        activeDistance = 120;
+        activeDistance = 1;
       break;
       case 2 :
-        activeDistance = 100;
+        activeDistance = 0.85;
       break;
       case 3 :
-        activeDistance = 60;
+        activeDistance = 0.5;
       break;
     }
     theSeat = Seat.getInstance();
@@ -42,19 +42,19 @@ public class ServoMotor {
     this(tmpid, tmpneutralIntensity, tmpattackIntensity, tmpmaxIntensity, 0, 0);
     switch (tmpid % 4) {
       case 0 :
-        horizontalAngle = 20;
+        horizontalAngle = 110;
         fov = 60;
       break;
       case 1 :
-        horizontalAngle = 60;
+        horizontalAngle = 150;
         fov = 60;
       break;
       case 2 :
-        horizontalAngle = 120;
+        horizontalAngle = 210;
         fov = 60;
       break;
       case 3 :
-        horizontalAngle = 160;
+        horizontalAngle = 250;
         fov = 60;
       break;
     }
