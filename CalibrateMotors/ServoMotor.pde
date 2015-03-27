@@ -1,4 +1,5 @@
 public class ServoMotor {
+  static final float MAXINTENSITY = 0.8;
   protected int id; //the pin of the motor
   protected int neutralIntensity;
   protected int attackIntensity;
@@ -90,7 +91,7 @@ public class ServoMotor {
     float deviation = abs(horizontalAngle - angle);
     //is angle inside the range of the servo?
     if (deviation <= fov) {
-      float intensity = map(deviation, 0, fov, 0.8, 0); // set max intensity to 0.8
+      float intensity = map(deviation, 0, fov, MAXINTENSITY, 0); // set max intensity to 0.8
       setIntensity(intensity);
     }
     else {
@@ -102,7 +103,7 @@ public class ServoMotor {
     float deviation = abs(horizontalAngle - angle);
     //is angle inside the range of the servo?
     if (deviation <= fov) {
-      float intensity = map(deviation, 0, fov, 0.8, 0); // set max intensity to 0.8
+      float intensity = map(deviation, 0, fov, MAXINTENSITY, 0); // set max intensity to 0.8
       intensity = intensity * map(distance, 0, activeDistance, 1, 0);
       setIntensity(intensity);
     }
