@@ -1,6 +1,7 @@
 import controlP5.*;
 import processing.serial.*;
 import spacebrew.*;
+import de.looksgood.ani.*;
 
 static final int SERVONUM = 16;
 static final int SERVOMIN = 150;
@@ -17,6 +18,12 @@ Knob motorKnob;
 Textlabel neutralLabel, attackLabel, maxLabel;
 Slider2D obstacle;
 boolean renderObstacle = false;
+boolean animateObstacle = false;
+
+float animationDuration = 5;
+int aniX = 10;
+int aniY = 100;
+Ani animation;
 
 Seat theSeat;
 ServoMotor[] motors = new ServoMotor[SERVONUM];
@@ -63,16 +70,34 @@ void setup() {
   String name        = "Seat";
   String description = "Client that receives heading and x-position data from OpenDS";
   sb.connect(server, name, description);
+  //init animation library
+  Ani.init(this);
+  Ani.setDefaultEasing(Ani.LINEAR);
 }
 
 void draw() {
   background(96);
+  //manual Obstacle positioning
   if (renderObstacle) {
     //Obstacle Positon in rear space of the driver
     float obstacleX = (obstacle.arrayValue()[0] - 50) * 0.01 * ROADWIDTH;
     float obstacleY = obstacle.arrayValue()[1] * 0.01 * BACKWARDRANGE;
 
-    // calc distance in the range [0.0-1.0]
+    calculateSensitivity(obstacleX, obstacleY);
+  }
+  //Preset obstacle animation
+  if(animateObstacle){
+    float obstacleX = (aniX - 50) * 0.01 * ROADWIDTH;
+    float obstacleY = aniY * 0.01 * BACKWARDRANGE;
+    calculateSensitivity(obstacleX, obstacleY);
+    println("y: "+aniY);
+  }
+
+  theSeat.process();
+}
+
+void calculateSensitivity(float obstacleX, float obstacleY){
+  // calc distance in the range [0.0-1.0]
     float distance = abs(dist(obstacleX, obstacleY, driverPositionX, 0)) / BACKWARDRANGE;
 
     //calc angle
@@ -101,16 +126,13 @@ void draw() {
 
     // print("Angle + heading" + angle);
 
-    // print("Angle: " + angle + ", Distance: " + distance + "obstacleX: " + obstacleX + "obstacleY: " + obstacleY);
+    //print("Angle: " + angle + ", Distance: " + distance + "obstacleX: " + obstacleX + "obstacleY: " + obstacleY);
     for (int i = 0; i < motors.length; ++i) {
       motors[i].setIntensityFromAngleAndDistance(angle, distance );
       // if (i == 0) {
       //   println("Motor: " + i + ", Pulse: " + motors[i].getServoPulse());
       // }
     }
-  }
-
-  theSeat.process();
 }
 
 void onStringMessage( String name, String value) {
@@ -239,6 +261,17 @@ void generateView() {
          .setArrayValue(new float[] {50, 50})
          ;
 
+  // Draw View for Animations
+  RadioButton animationGrid = cp5.addRadioButton("animationSelected")
+                 .setPosition(280,680)
+                 .setSize(20,20)
+                 .setItemsPerRow(5)
+                 .setSpacingColumn(30)
+                 .setSpacingRow(30);
+  for (int j = 1; j < 6; j++) {
+    animationGrid.addItem("lane"+j,j);
+  }       
+
   addMouseWheelListener();
 }
 
@@ -330,6 +363,37 @@ void readObstacle(float[] o) {
   if (renderObstacle == false) neutral(0);
 }
 
+void animationSelected(int a)
+{
+  print ("Lane:" + a);
+  //if(animation.isPlaying()) animation.end();
+  int aniToY = -10;
+  aniY = 100;
+  switch (a) {
+    case 1 :
+      aniX = 10;
+    break;
+    case 2 :
+      aniX = 30; 
+    break;
+    case 3 :
+      aniX = 50; 
+    break;
+    case 4 :
+      aniX = 70; 
+    break;
+    case 5 :
+      aniX = 90; 
+    break;      
+  }
+  animateObstacle = true;
+  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation"); 
+  animation.start();
+}
+void killAnimation(){
+  animateObstacle = false;
+
+}
 // Add mouseWheel Support
 void addMouseWheelListener() {
   frame.addMouseWheelListener(new java.awt.event.MouseWheelListener() {

@@ -82,12 +82,7 @@ public class ServoMotor {
 
   public void setIntensity(float intensity) {
     int tmpservoPulse;
-    if (intensity == 0) {
-      tmpservoPulse = neutralIntensity;
-    }
-    else {
-      tmpservoPulse = int(map(intensity, 0, 1, attackIntensity, maxIntensity));
-    }
+    tmpservoPulse = int(map(intensity, 0, 1, attackIntensity, maxIntensity));
     setServoPulse(tmpservoPulse);
   }
 

@@ -2,7 +2,7 @@ import processing.serial.*;
 
 static public final class Seat {
   private static final char HEADER = 'M';
-  private static final int SENDDELAY = 50;
+  private static final int SENDDELAY = 70;
   private PApplet parent;
   private Serial arduinoPort;
   private Boolean connected = false;
