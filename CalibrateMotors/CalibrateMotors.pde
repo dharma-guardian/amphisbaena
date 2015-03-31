@@ -6,21 +6,23 @@ import de.looksgood.ani.*;
 static final int SERVONUM = 16;
 static final int SERVOMIN = 150;
 static final int SERVOMAX = 670;
-static final float ROADWIDTH = 18.5;
+static final float ROADWIDTH = 16.5;
 static final float BACKWARDRANGE = ROADWIDTH * 2; //if you change this value, adjust the size of the visual representation slider2D
 
 Spacebrew sb;
 int driverHeading = 0;
 float driverPositionX = 0;
+String trigger = "";
 
 ControlP5 cp5;
 Knob motorKnob;
 Textlabel neutralLabel, attackLabel, maxLabel;
 Slider2D obstacle;
+Slider sliderDriverPosX;
 boolean renderObstacle = false;
-boolean animateObstacle = false;
+boolean renderAnimation = false;
 
-float animationDuration = 5;
+float animationDuration = 10;
 int aniX = 10;
 int aniY = 100;
 Ani animation;
@@ -30,7 +32,7 @@ ServoMotor[] motors = new ServoMotor[SERVONUM];
 int selectedMotor = -1;
 
 void setup() {
-  size(720,720,P2D);
+  size(1000,720,P2D);
 
   theSeat = Seat.getInstance();
 
@@ -65,6 +67,9 @@ void setup() {
   // declare your subscribers
   sb.addSubscribe( "positonX", "string" );
 
+   // declare your subscribers
+  sb.addSubscribe( "trigger", "string" );
+
   // connect to spacebrew
   String server      = "ws://spacebrew.icts.sbg.ac.at:9000";
   String name        = "Seat";
@@ -86,17 +91,21 @@ void draw() {
     calculateSensitivity(obstacleX, obstacleY);
   }
   //Preset obstacle animation
-  if(animateObstacle){
+  if(renderAnimation){
     float obstacleX = (aniX - 50) * 0.01 * ROADWIDTH;
     float obstacleY = aniY * 0.01 * BACKWARDRANGE;
     calculateSensitivity(obstacleX, obstacleY);
     println("y: "+aniY);
+    cp5.getController("obstacle").setArrayValue(new float[] {aniX, aniY});
   }
-
+  cp5.getController("sliderDriverPosX").setValue(driverPositionX);
+  cp5.getController("labelTrigger").setStringValue("Last Trigger: "+trigger);
   theSeat.process();
+
 }
 
 void calculateSensitivity(float obstacleX, float obstacleY){
+    
   // calc distance in the range [0.0-1.0]
     float distance = abs(dist(obstacleX, obstacleY, driverPositionX, 0)) / BACKWARDRANGE;
 
@@ -136,7 +145,13 @@ void calculateSensitivity(float obstacleX, float obstacleY){
 }
 
 void onStringMessage( String name, String value) {
+  String strPositionX = "positonX";
+  String strTrigger = "trigger";
+  println(name+" : "+value);
+  if(name.equals(strPositionX))
   driverPositionX = parseFloat(value);
+  else if(name.equals(strTrigger))
+  trigger = value;  
   // println("got string message " + name + " : " + value);
 }
 
@@ -254,23 +269,59 @@ void generateView() {
      .setSize(20, 20)
      .addItem("renderObstacle", 0)
      ;
+  cp5.addCheckBox("readAnimation")
+     .setPosition(620, 20)
+     .setSize(20, 20)
+     .addItem("renderAnimation", 0)
+     ;   
+
+  cp5.addSlider("sliderD")
+     .setPosition(280,60)
+     .setSize(300,15)
+     .setRange(-ROADWIDTH/2,ROADWIDTH/2)
+     .setNumberOfTickMarks(6)
+     .setSliderMode(Slider.FIX)
+     ;      
+  cp5.addSlider("sliderDriverPosX")
+     .setPosition(280,60)
+     .setSize(300,15)
+     .setRange(-ROADWIDTH/2,ROADWIDTH/2)
+     .setSliderMode(Slider.FLEXIBLE)
+     ;
 
   obstacle = cp5.addSlider2D("obstacle")
-         .setPosition(280,60)
+         .setPosition(280,100)
          .setSize(300,600)
          .setArrayValue(new float[] {50, 50})
          ;
 
   // Draw View for Animations
-  RadioButton animationGrid = cp5.addRadioButton("animationSelected")
-                 .setPosition(280,680)
+  RadioButton animationGrid = cp5.addRadioButton("animationSelectedC1")
+                 .setPosition(620,100)
                  .setSize(20,20)
                  .setItemsPerRow(5)
                  .setSpacingColumn(30)
                  .setSpacingRow(30);
   for (int j = 1; j < 6; j++) {
-    animationGrid.addItem("lane"+j,j);
-  }       
+    animationGrid.addItem("laneC1: "+j,j);
+  }
+
+  // Draw View for Animations 2
+  RadioButton animationGrid2 = cp5.addRadioButton("animationSelectedC2")
+                 .setPosition(620,140)
+                 .setSize(20,20)
+                 .setItemsPerRow(5)
+                 .setSpacingColumn(30)
+                 .setSpacingRow(30);
+  for (int j = 1; j < 6; j++) {
+    animationGrid2.addItem("laneC2: "+j,j);
+  } 
+
+  
+  cp5.addTextlabel("labelTrigger")
+                    .setText("Active Trigger: ")
+                    .setPosition(620,180)
+                    ;   
 
   addMouseWheelListener();
 }
@@ -363,7 +414,12 @@ void readObstacle(float[] o) {
   if (renderObstacle == false) neutral(0);
 }
 
-void animationSelected(int a)
+void readAnimation(float[] o) {
+  renderAnimation = boolean(int(o[0]));
+  if (renderAnimation == false) neutral(0);
+}
+
+void animationSelectedC1(int a)
 {
   print ("Lane:" + a);
   //if(animation.isPlaying()) animation.end();
@@ -386,12 +442,42 @@ void animationSelected(int a)
       aniX = 90; 
     break;      
   }
-  animateObstacle = true;
+  //animateObstacle = true;
   animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation"); 
   animation.start();
 }
+
+void animationSelectedC2(int a)
+{
+  print ("Lane:" + a);
+  //if(animation.isPlaying()) animation.end();
+  int aniToY = 20;
+  aniY = 100;
+  switch (a) {
+    case 1 :
+      aniX = 10;
+    break;
+    case 2 :
+      aniX = 30; 
+    break;
+    case 3 :
+      aniX = 50; 
+    break;
+    case 4 :
+      aniX = 70; 
+    break;
+    case 5 :
+      aniX = 90; 
+    break;      
+  }
+  //animateObstacle = true;
+  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation"); 
+  animation.start();
+}
+
+
 void killAnimation(){
-  animateObstacle = false;
+  //animateObstacle = false;
 
 }
 // Add mouseWheel Support

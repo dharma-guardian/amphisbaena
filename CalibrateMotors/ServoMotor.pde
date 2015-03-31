@@ -42,20 +42,20 @@ public class ServoMotor {
     this(tmpid, tmpneutralIntensity, tmpattackIntensity, tmpmaxIntensity, 0, 0);
     switch (tmpid % 4) {
       case 0 :
-        horizontalAngle = 110;
-        fov = 60;
+        horizontalAngle = 120;
+        fov = 90;
       break;
       case 1 :
-        horizontalAngle = 150;
-        fov = 60;
+        horizontalAngle = 160;
+        fov = 90;
       break;
       case 2 :
-        horizontalAngle = 210;
-        fov = 60;
+        horizontalAngle = 200;
+        fov = 90;
       break;
       case 3 :
-        horizontalAngle = 250;
-        fov = 60;
+        horizontalAngle = 240;
+        fov = 90;
       break;
     }
   }
@@ -102,7 +102,7 @@ public class ServoMotor {
     float deviation = abs(horizontalAngle - angle);
     //is angle inside the range of the servo?
     if (deviation <= fov) {
-      float intensity = map(deviation, 0, fov, 0.8, 0); // set max intensity to 0.8
+      float intensity = map(deviation, 0, fov, 1, 0); // set max intensity to 1
       intensity = intensity * map(distance, 0, activeDistance, 1, 0);
       setIntensity(intensity);
     }
