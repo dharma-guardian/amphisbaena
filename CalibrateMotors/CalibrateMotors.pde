@@ -13,6 +13,7 @@ Spacebrew sb;
 int driverHeading = 0;
 float driverPositionX = 0;
 String trigger = "";
+int triggerNum;
 
 ControlP5 cp5;
 Knob motorKnob;
@@ -21,10 +22,13 @@ Slider2D obstacle;
 Slider sliderDriverPosX;
 boolean renderObstacle = false;
 boolean renderAnimation = false;
+boolean readTriggers = false;
+boolean debug = false;
 
-float animationDuration = 10;
+float animationDuration = 7;
 int aniX = 10;
 int aniY = 100;
+int aniToY = 0;
 Ani animation;
 
 Seat theSeat;
@@ -95,7 +99,7 @@ void draw() {
     float obstacleX = (aniX - 50) * 0.01 * ROADWIDTH;
     float obstacleY = aniY * 0.01 * BACKWARDRANGE;
     calculateSensitivity(obstacleX, obstacleY);
-    println("y: "+aniY);
+    //logString("y: "+aniY);
     cp5.getController("obstacle").setArrayValue(new float[] {aniX, aniY});
   }
   cp5.getController("sliderDriverPosX").setValue(driverPositionX);
@@ -139,7 +143,7 @@ void calculateSensitivity(float obstacleX, float obstacleY){
     for (int i = 0; i < motors.length; ++i) {
       motors[i].setIntensityFromAngleAndDistance(angle, distance );
       // if (i == 0) {
-      //   println("Motor: " + i + ", Pulse: " + motors[i].getServoPulse());
+      //   logString("Motor: " + i + ", Pulse: " + motors[i].getServoPulse());
       // }
     }
 }
@@ -147,18 +151,23 @@ void calculateSensitivity(float obstacleX, float obstacleY){
 void onStringMessage( String name, String value) {
   String strPositionX = "positonX";
   String strTrigger = "trigger";
-  println(name+" : "+value);
+  //logString(name+" : "+value);
   if(name.equals(strPositionX))
   driverPositionX = parseFloat(value);
   else if(name.equals(strTrigger))
-  trigger = value;  
-  // println("got string message " + name + " : " + value);
+  {
+    trigger = value;
+    //triggerNum = Integer.parseInt(split(trigger, 'r')[1]); //Split the triggerstring (i.e. "trigger1") to get the number only for a switch case
+    if(readTriggers)
+    animationCondition2(trigger);
+  }
+  // logString("got string message " + name + " : " + value);
 }
 
 
 void onRangeMessage( String name, int value ) {
   driverHeading = value;
-  // println("got range message " + name + " : " + value);
+  // logString("got range message " + name + " : " + value);
 }
 
 /**
@@ -241,10 +250,18 @@ void generateView() {
      .setSize(80,20)
      ;
 
-  cp5.addButton("export")
+  cp5.addButton("attack")
      .setPosition(50,440)
      .setSize(80,20)
      ;
+  cp5.addButton("maxI")
+     .setPosition(50,470)
+     .setSize(80,20)
+     ;
+  cp5.addButton("export")
+     .setPosition(50,500)
+     .setSize(80,20)
+     ;      
 
 
   // Select Port from DropdownList
@@ -264,16 +281,27 @@ void generateView() {
       portList.addItem(ports[i], i);
   }
 
-  cp5.addCheckBox("readObstacle")
+  cp5.addCheckBox("debugMode")
      .setPosition(280, 20)
+     .setSize(20, 20)
+     .addItem("debug", 0)
+     ;
+
+  cp5.addCheckBox("readObstacle")
+     .setPosition(620, 180)
      .setSize(20, 20)
      .addItem("renderObstacle", 0)
      ;
   cp5.addCheckBox("readAnimation")
-     .setPosition(620, 20)
+     .setPosition(620, 220)
      .setSize(20, 20)
      .addItem("renderAnimation", 0)
-     ;   
+     ; 
+  cp5.addCheckBox("triggerAnimation")
+     .setPosition(620, 260)
+     .setSize(20, 20)
+     .addItem("readTriggers", 0)
+     ;       
 
   cp5.addSlider("sliderD")
      .setPosition(280,60)
@@ -303,24 +331,24 @@ void generateView() {
                  .setSpacingColumn(30)
                  .setSpacingRow(30);
   for (int j = 1; j < 6; j++) {
-    animationGrid.addItem("laneC1: "+j,j);
+    animationGrid.addItem("l"+j,j);
   }
 
   // Draw View for Animations 2
-  RadioButton animationGrid2 = cp5.addRadioButton("animationSelectedC2")
+  /*RadioButton animationGrid2 = cp5.addRadioButton("animationSelectedC2")
                  .setPosition(620,140)
                  .setSize(20,20)
                  .setItemsPerRow(5)
                  .setSpacingColumn(30)
                  .setSpacingRow(30);
   for (int j = 1; j < 6; j++) {
-    animationGrid2.addItem("laneC2: "+j,j);
-  } 
+    animationGrid2.addItem("C2: l"+j,j);
+  } */
 
   
   cp5.addTextlabel("labelTrigger")
                     .setText("Active Trigger: ")
-                    .setPosition(620,180)
+                    .setPosition(620,160)
                     ;   
 
   addMouseWheelListener();
@@ -357,28 +385,28 @@ void setNeutral(int value) {
   int intensity = int(motorKnob.getValue());
   motors[selectedMotor].setNeutralIntensity(intensity);
   neutralLabel.setText("" + intensity);
-  println("Setting Neutral Intensity of motor " + selectedMotor + " to " + intensity);
+  logString("Setting Neutral Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
 void setAttack(int value) {
   int intensity = int(motorKnob.getValue());
   motors[selectedMotor].setAttackIntensity(intensity);
   attackLabel.setText("" + intensity);
-  println("Setting Attack Intensity of motor " + selectedMotor + " to " + intensity);
+  logString("Setting Attack Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
 void setMax(int value) {
   int intensity = int(motorKnob.getValue());
   motors[selectedMotor].setMaxIntensity(intensity);
   maxLabel.setText("" + intensity);
-  println("Setting Max Intensity of motor " + selectedMotor + " to " + intensity);
+  logString("Setting Max Intensity of motor " + selectedMotor + " to " + intensity);
 }
 
 
 void motorChange(int motorValue) {
   if (selectedMotor != -1) {
     motors[selectedMotor].setServoPulse(motorValue);
-    println("a knob event. setting motor to " + motorValue);
+    logString("a knob event. setting motor to " + motorValue);
   }
 }
 
@@ -388,14 +416,28 @@ void motorSelected(int m) {
   neutralLabel.setText("" + motors[selectedMotor].getNeutralIntensity());
   attackLabel.setText("" + motors[selectedMotor].getAttackIntensity());
   maxLabel.setText("" + motors[selectedMotor].getMaxIntensity());
-  println("Motor "+ m + " selected");
+  logString("Motor "+ m + " selected");
 }
 
 void neutral(int value) {
   for (int m = 0; m < motors.length; ++m) {
-    println("motor: "+ m + "neutral Intensity" + motors[m].getNeutralIntensity());
+    logString("motor: "+ m + " neutral Intensity" + motors[m].getNeutralIntensity());
     motors[m].setServoPulse(motors[m].getNeutralIntensity());
     if (selectedMotor == m) motorKnob.setValue(motors[m].getNeutralIntensity());
+  }
+}
+void attack(int value) {
+  for (int m = 0; m < motors.length; ++m) {
+    logString("motor: "+ m + " attack Intensity" + motors[m].getAttackIntensity());
+    motors[m].setServoPulse(motors[m].getAttackIntensity());
+    if (selectedMotor == m) motorKnob.setValue(motors[m].getAttackIntensity());
+  }
+}
+void maxI(int value) {
+  for (int m = 0; m < motors.length; ++m) {
+    logString("motor: "+ m + " max Intensity" + motors[m].getMaxIntensity());
+    motors[m].setServoPulse(motors[m].getMaxIntensity());
+    if (selectedMotor == m) motorKnob.setValue(motors[m].getMaxIntensity());
   }
 }
 
@@ -419,11 +461,21 @@ void readAnimation(float[] o) {
   if (renderAnimation == false) neutral(0);
 }
 
+void triggerAnimation(float[] o) {
+  readTriggers = boolean(int(o[0]));
+  if (readTriggers == false) neutral(0);
+}
+
+void debugMode(float[] o) {
+  debug = boolean(int(o[0]));
+  if (debug == false) neutral(0);
+}
+
 void animationSelectedC1(int a)
 {
   print ("Lane:" + a);
   //if(animation.isPlaying()) animation.end();
-  int aniToY = -10;
+  aniToY = -10;
   aniY = 100;
   switch (a) {
     case 1 :
@@ -451,7 +503,7 @@ void animationSelectedC2(int a)
 {
   print ("Lane:" + a);
   //if(animation.isPlaying()) animation.end();
-  int aniToY = 20;
+  aniToY = 20;
   aniY = 100;
   switch (a) {
     case 1 :
@@ -475,11 +527,109 @@ void animationSelectedC2(int a)
   animation.start();
 }
 
+void animationCondition2(String a)
+{
+  print ("Lane:" + a);
+  //if(animation.isPlaying()) animation.end();
+  aniToY = 20;
+  aniY = 100;
+  if (a.equals("trigger0"))
+    aniX = 50;
+  else if (a.equals("trigger1"))
+    aniX = 10;
+  else if (a.equals("trigger2"))
+    aniX = 50;
+  else if (a.equals("trigger3"))
+    aniX = 90;
+  else if (a.equals("trigger4"))
+    aniX = 30;
+  else if (a.equals("trigger5"))
+    aniX = 90;
+  else if (a.equals("trigger6"))
+    aniX = 70;
+  else if (a.equals("trigger7"))
+    aniX = 50;
+  else if (a.equals("trigger8"))
+    aniX = 70;  
+  else if (a.equals("trigger9"))
+    aniX = 70;
+  else if (a.equals("trigger10"))
+    aniX = 50;
+  else if (a.equals("trigger11"))
+    aniX = 10;
+  else if (a.equals("trigger12"))
+    aniX = 10;
+  else if (a.equals("trigger13"))
+    aniX = 90;
+  else if (a.equals("trigger14"))
+    aniX = 90;
+  else if (a.equals("trigger15"))     
+    aniX = 10; 
+  else  
+    return;
+
+  /*switch (a) {
+    case 0 :
+      aniX = 10;
+    break;
+    case 1 :
+      aniX = 10;
+    break;
+    case 2 :
+      aniX = 30; 
+    break;
+    case 3 :
+      aniX = 50; 
+    break;
+    case 4 :
+      aniX = 70; 
+    break;
+    case 5 :
+      aniX = 90; 
+    break;
+    case 6 :
+      aniX = 90; 
+    break;
+    case 7 :
+      aniX = 90; 
+    break;
+    case 8 :
+      aniX = 90; 
+    break;
+    case 9 :
+      aniX = 90; 
+    break;
+    case 10 :
+      aniX = 90; 
+    break;
+    case 11 :
+      aniX = 90; 
+    break;
+    case 12 :
+      aniX = 90; 
+    break;
+    case 13 :
+      aniX = 90; 
+    break;
+    case 14 :
+      aniX = 90; 
+    break;
+    case 15 :
+      aniX = 90; 
+    break;
+  }*/
+  //animateObstacle = true;
+
+  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation"); 
+  animation.start();
+}
+
 
 void killAnimation(){
-  //animateObstacle = false;
-
+  animation = new Ani(this, 2,4, "aniY", 100, Ani.LINEAR); 
+  animation.start();
 }
+
 // Add mouseWheel Support
 void addMouseWheelListener() {
   frame.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
@@ -488,6 +638,12 @@ void addMouseWheelListener() {
     }
   }
   );
+}
+
+void logString(String msg){
+  if(debug){
+    println(msg);
+  }
 }
 
 /*
