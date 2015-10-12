@@ -78,10 +78,7 @@ void setup() {
   sb.addSubscribe( "trigger", "string" );
 
   // connect to spacebrew
-  String server      = "ws://spacebrew.icts.sbg.ac.at:9000";
-  String name        = "Seat";
-  String description = "Client that receives heading and x-position data from OpenDS";
-  sb.connect(server, name, description);
+  sb.connect("spacebrew.icts.sbg.ac.at", 9000, "Seat", "Client that receives heading and x-position data from OpenDS");
   //init animation library
   Ani.init(this);
   Ani.setDefaultEasing(Ani.LINEAR);
@@ -93,8 +90,8 @@ void draw() {
   ///driverOffsetX = sliderDriverOffsetX.getValue();
   if (renderObstacle) {
     //Obstacle Positon in rear space of the driver
-    float obstacleX = (obstacle.arrayValue()[0] - 50) * 0.01 * ROADWIDTH;
-    float obstacleY = obstacle.arrayValue()[1] * 0.01 * BACKWARDRANGE;
+    float obstacleX = (obstacle.getArrayValue()[0] - 50) * 0.01 * ROADWIDTH;
+    float obstacleY = obstacle.getArrayValue()[1] * 0.01 * BACKWARDRANGE;
 
     calculateSensitivity(obstacleX, obstacleY);
   }
@@ -113,7 +110,7 @@ void draw() {
 }
 
 void calculateSensitivity(float obstacleX, float obstacleY){
-    
+
   // calc distance in the range [0.0-1.0]
     float distance = abs(dist(obstacleX, obstacleY, driverPositionX, 0)) / BACKWARDRANGE;
 
@@ -265,22 +262,22 @@ void generateView() {
   cp5.addButton("export")
      .setPosition(50,500)
      .setSize(80,20)
-     ;      
+     ;
 
 
   // Select Port from DropdownList
   String[] ports = Serial.list();
-  DropdownList portList = cp5.addDropdownList("portList")
+  ScrollableList portList = cp5.addScrollableList("portList")
           .setPosition(40, 40)
           .setItemHeight(20)
           .setWidth(200)
           .setBarHeight(15)
           .setHeight(400)
           ;
-  portList.captionLabel().set("Select Port");
-  portList.captionLabel().style().marginTop = 3;
-  portList.captionLabel().style().marginLeft = 3;
-  portList.valueLabel().style().marginTop = 3;
+  // portList.captionLabel().set("Select Port");
+  // portList.captionLabel().style().marginTop = 3;
+  // portList.captionLabel().style().marginLeft = 3;
+  // portList.valueLabel().style().marginTop = 3;
   for (int i = 0; i < ports.length; ++i) {
       portList.addItem(ports[i], i);
   }
@@ -300,12 +297,12 @@ void generateView() {
      .setPosition(620, 220)
      .setSize(20, 20)
      .addItem("renderAnimation", 0)
-     ; 
+     ;
   cp5.addCheckBox("triggerAnimation")
      .setPosition(620, 260)
      .setSize(20, 20)
      .addItem("readTriggers", 0)
-     ;       
+     ;
 
   cp5.addSlider("sliderD")
      .setPosition(280,60)
@@ -313,7 +310,7 @@ void generateView() {
      .setRange(-ROADWIDTH/2,ROADWIDTH/2)
      .setNumberOfTickMarks(6)
      .setSliderMode(Slider.FIX)
-     ;      
+     ;
   cp5.addSlider("sliderDriverPosX")
      .setPosition(280,60)
      .setSize(300,15)
@@ -325,7 +322,7 @@ void generateView() {
      .setSize(300,15)
      .setRange(-CARWIDTH/2,CARWIDTH/2)
      .setSliderMode(Slider.FLEXIBLE)
-     ;     
+     ;
 
   obstacle = cp5.addSlider2D("obstacle")
          .setPosition(280,100)
@@ -355,11 +352,11 @@ void generateView() {
     animationGrid2.addItem("C2: l"+j,j);
   } */
 
-  
+
   cp5.addTextlabel("labelTrigger")
                     .setText("Active Trigger: ")
                     .setPosition(620,160)
-                    ;   
+                    ;
 
   addMouseWheelListener();
 }
@@ -497,20 +494,20 @@ void animationSelectedC1(int a)
       aniX = 10;
     break;
     case 2 :
-      aniX = 30; 
+      aniX = 30;
     break;
     case 3 :
-      aniX = 50; 
+      aniX = 50;
     break;
     case 4 :
-      aniX = 70; 
+      aniX = 70;
     break;
     case 5 :
-      aniX = 90; 
-    break;      
+      aniX = 90;
+    break;
   }
   //animateObstacle = true;
-  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation"); 
+  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation");
   animation.start();
 }
 
@@ -525,20 +522,20 @@ void animationSelectedC2(int a)
       aniX = 10;
     break;
     case 2 :
-      aniX = 30; 
+      aniX = 30;
     break;
     case 3 :
-      aniX = 50; 
+      aniX = 50;
     break;
     case 4 :
-      aniX = 70; 
+      aniX = 70;
     break;
     case 5 :
-      aniX = 90; 
-    break;      
+      aniX = 90;
+    break;
   }
   //animateObstacle = true;
-  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation"); 
+  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation");
   animation.start();
 }
 
@@ -565,7 +562,7 @@ void animationCondition2(String a)
   else if (a.equals("trigger7"))
     aniX = 50;
   else if (a.equals("trigger8"))
-    aniX = 70;  
+    aniX = 70;
   else if (a.equals("trigger9"))
     aniX = 70;
   else if (a.equals("trigger10"))
@@ -578,9 +575,9 @@ void animationCondition2(String a)
     aniX = 90;
   else if (a.equals("trigger14"))
     aniX = 90;
-  else if (a.equals("trigger15"))     
-    aniX = 10; 
-  else  
+  else if (a.equals("trigger15"))
+    aniX = 10;
+  else
     return;
 
   /*switch (a) {
@@ -591,57 +588,57 @@ void animationCondition2(String a)
       aniX = 10;
     break;
     case 2 :
-      aniX = 30; 
+      aniX = 30;
     break;
     case 3 :
-      aniX = 50; 
+      aniX = 50;
     break;
     case 4 :
-      aniX = 70; 
+      aniX = 70;
     break;
     case 5 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 6 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 7 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 8 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 9 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 10 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 11 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 12 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 13 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 14 :
-      aniX = 90; 
+      aniX = 90;
     break;
     case 15 :
-      aniX = 90; 
+      aniX = 90;
     break;
   }*/
   //animateObstacle = true;
 
-  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation"); 
+  animation = new Ani(this, animationDuration, "aniY", aniToY, Ani.LINEAR, "onEnd:killAnimation");
   animation.start();
 }
 
 
 void killAnimation(){
-  animation = new Ani(this, 4,1, "aniY", 100, Ani.LINEAR); 
+  animation = new Ani(this, 4,1, "aniY", 100, Ani.LINEAR);
   animation.start();
 }
 
