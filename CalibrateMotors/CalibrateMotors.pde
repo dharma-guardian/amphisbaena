@@ -7,11 +7,13 @@ static final int SERVONUM = 16;
 static final int SERVOMIN = 150;
 static final int SERVOMAX = 670;
 static final float ROADWIDTH = 16.5;
+static final float CARWIDTH = 2;
 static final float BACKWARDRANGE = ROADWIDTH * 2; //if you change this value, adjust the size of the visual representation slider2D
 
 Spacebrew sb;
 int driverHeading = 0;
 float driverPositionX = 0;
+float driverOffsetX = -.7;
 String trigger = "";
 int triggerNum;
 
@@ -20,6 +22,7 @@ Knob motorKnob;
 Textlabel neutralLabel, attackLabel, maxLabel;
 Slider2D obstacle;
 Slider sliderDriverPosX;
+Slider sliderDriverOffsetX;
 boolean renderObstacle = false;
 boolean renderAnimation = false;
 boolean readTriggers = false;
@@ -87,6 +90,7 @@ void setup() {
 void draw() {
   background(96);
   //manual Obstacle positioning
+  ///driverOffsetX = sliderDriverOffsetX.getValue();
   if (renderObstacle) {
     //Obstacle Positon in rear space of the driver
     float obstacleX = (obstacle.arrayValue()[0] - 50) * 0.01 * ROADWIDTH;
@@ -102,7 +106,7 @@ void draw() {
     //logString("y: "+aniY);
     cp5.getController("obstacle").setArrayValue(new float[] {aniX, aniY});
   }
-  cp5.getController("sliderDriverPosX").setValue(driverPositionX);
+  cp5.getController("sliderDriverPosX").setValue(driverPositionX+driverOffsetX);
   cp5.getController("labelTrigger").setStringValue("Last Trigger: "+trigger);
   theSeat.process();
 
@@ -316,6 +320,12 @@ void generateView() {
      .setRange(-ROADWIDTH/2,ROADWIDTH/2)
      .setSliderMode(Slider.FLEXIBLE)
      ;
+  cp5.addSlider("sliderDriverOffsetX")
+     .setPosition(280,20)
+     .setSize(300,15)
+     .setRange(-CARWIDTH/2,CARWIDTH/2)
+     .setSliderMode(Slider.FLEXIBLE)
+     ;     
 
   obstacle = cp5.addSlider2D("obstacle")
          .setPosition(280,100)
@@ -466,6 +476,11 @@ void triggerAnimation(float[] o) {
   if (readTriggers == false) neutral(0);
 }
 
+/*void sliderDriverOffsetX(float value) {
+  //driverOffsetX = sliderDriverOffsetX.getValue();
+  logString("Offset: "+ driverOffsetX);
+}*/
+
 void debugMode(float[] o) {
   debug = boolean(int(o[0]));
   if (debug == false) neutral(0);
@@ -475,7 +490,7 @@ void animationSelectedC1(int a)
 {
   print ("Lane:" + a);
   //if(animation.isPlaying()) animation.end();
-  aniToY = -10;
+  aniToY = 5;
   aniY = 100;
   switch (a) {
     case 1 :
@@ -626,7 +641,7 @@ void animationCondition2(String a)
 
 
 void killAnimation(){
-  animation = new Ani(this, 2,4, "aniY", 100, Ani.LINEAR); 
+  animation = new Ani(this, 4,1, "aniY", 100, Ani.LINEAR); 
   animation.start();
 }
 

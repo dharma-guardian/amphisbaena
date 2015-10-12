@@ -1,5 +1,5 @@
 public class ServoMotor {
-  static final float MAXINTENSITY = 0.8;
+  static final float MAXINTENSITY = 1;
   protected int id; //the pin of the motor
   protected int neutralIntensity;
   protected int attackIntensity;
